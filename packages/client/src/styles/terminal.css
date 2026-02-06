@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terminal-bg: #0a0a0a;
+  --color-terminal-fg: #e0e0e0;
+  --color-terminal-dim: #666666;
+  --color-terminal-green: #00ff41;
+  --color-terminal-red: #ff3333;
+  --color-terminal-yellow: #ffcc00;
+  --color-terminal-blue: #4488ff;
+  --color-terminal-cyan: #00cccc;
+  --color-terminal-magenta: #cc44cc;
+  --color-terminal-orange: #ff8800;
+  --color-card-common: #444444;
+  --color-card-rare: #6644aa;
+  --color-card-legendary: #cc8800;
+  --font-mono: "Courier New", "Liberation Mono", monospace;
+}
+
+/* Base terminal styling */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background-color: var(--color-terminal-bg);
+  color: var(--color-terminal-fg);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Scanline overlay */
+#root::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  z-index: 9999;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* Blink cursor */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.cursor-blink::after {
+  content: "█";
+  animation: blink 1s step-end infinite;
+  color: var(--color-terminal-green);
+}
+
+/* Typewriter animation */
+@keyframes typewriter {
+  from { max-height: 0; }
+  to { max-height: 1000px; }
+}
+
+/* Glow effects */
+.glow-green { text-shadow: 0 0 8px rgba(0, 255, 65, 0.6); }
+.glow-red { text-shadow: 0 0 8px rgba(255, 51, 51, 0.6); }
+.glow-blue { text-shadow: 0 0 8px rgba(68, 136, 255, 0.6); }
+.glow-yellow { text-shadow: 0 0 8px rgba(255, 204, 0, 0.6); }
+
+/* Card hover effect */
+.card-hover {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 255, 65, 0.2);
+}
+
+/* Pulse for warnings */
+@keyframes pulse-red {
+  0%, 100% { border-color: rgba(255, 51, 51, 0.3); }
+  50% { border-color: rgba(255, 51, 51, 1); }
+}
+.pulse-danger {
+  animation: pulse-red 1.5s ease-in-out infinite;
+}
