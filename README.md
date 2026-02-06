@@ -138,7 +138,7 @@ npm run dev:client
 | 模式 | 条件 | 行为 |
 |------|------|------|
 | **Mock** | 无 API Key | 使用本地 `comboEngine` 规则引擎生成确定性结果 |
-| **AI** | 设置 `OPENAI_API_KEY` | 调用 GPT-4o-mini 生成动态叙事、事件润色、历史书 |
+| **AI** | 设置 `OPENAI_API_KEY` | 调用 GPT-4.1-mini 生成动态叙事、事件润色、历史书 |
 
 Mock 模式完全可玩——规则引擎会根据卡牌标签和属性计算结果。AI 模式提供更丰富、更不可预测的叙事体验。
 

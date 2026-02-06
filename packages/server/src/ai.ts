@@ -14,8 +14,8 @@ export async function initAI(): Promise<void> {
     try {
       const { createOpenAI } = await import('@ai-sdk/openai');
       const openai = createOpenAI({ apiKey: openaiKey });
-      _provider = openai('gpt-4o-mini');
-      console.log('[AI] Using OpenAI provider (gpt-4o-mini)');
+      _provider = openai('gpt-4.1-mini-2025-04-14');
+      console.log('[AI] Using OpenAI provider (gpt-4.1-mini-2025-04-14)');
     } catch (err) {
       console.warn('[AI] Failed to init OpenAI:', err);
     }
