@@ -1,4 +1,4 @@
-import type { GovernmentType, NationStatChanges } from '../types/game.js';
+import type { GovernmentType, GameOverReason, NationStatChanges } from '../types/game.js';
 
 /**
  * Daily entropy modifiers per government type.
@@ -30,6 +30,23 @@ export const GOVERNMENT_DESCRIPTIONS: Record<GovernmentType, string> = {
   bureaucracy: '稳定但腐败不断滋生',
   tribal:      '韧性强但发展受限',
   fela:        '全面衰退——一切都在加速崩溃',
+};
+
+export const DEATH_REASON_LABELS: Record<GameOverReason, string> = {
+  riot: '暴乱',
+  starvation: '饥荒',
+  madness: '叙事过载',
+  insanity: '精神崩溃',
+};
+
+export const STAT_LABELS: Record<string, string> = {
+  narrative_integrity: '叙事完整度',
+  violence_authority: '暴力权威',
+  supply_level: '给养储备',
+  sanity: '理智度',
+  cruelty: '残暴值',
+  corruption: '腐败值',
+  population: '人口',
 };
 
 /** Affinity threshold to trigger government type change */

@@ -191,7 +191,7 @@ export function GameOverScreen() {
         </div>
 
         <div className="text-dim text-xs mb-6 font-mono">
-          存活天数: {day} | 最终人口: {nation.population} | 政体: {GOVERNMENT_LABELS[nation.government_type] || nation.government_type}
+          存活天数: {day} | 最终人口: {nation.population} | 政体: {GOVERNMENT_LABELS[nation.government_type] || '未知'}
         </div>
 
         {/* History Book */}

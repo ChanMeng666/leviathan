@@ -28,8 +28,8 @@ interface GalleryDetailProps {
 export function GalleryDetail({ run, open, onClose }: GalleryDetailProps) {
   if (!run) return null;
 
-  const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? run.governmentType;
-  const deathLabel = DEATH_LABELS[run.deathReason] ?? run.deathReason;
+  const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? '未知';
+  const deathLabel = DEATH_LABELS[run.deathReason] ?? '未知';
 
   return (
     <Modal open={open} onClose={onClose} title={run.nationName}>

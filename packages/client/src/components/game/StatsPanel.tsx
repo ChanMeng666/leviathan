@@ -46,7 +46,7 @@ export function StatsPanel() {
     prevStats.current = stats;
   }, [nation.narrative_integrity, nation.violence_authority, nation.supply_level, nation.sanity]);
 
-  const govLabel = GOVERNMENT_LABELS[nation.government_type] || nation.government_type;
+  const govLabel = GOVERNMENT_LABELS[nation.government_type] || '未知';
   const govDesc = GOVERNMENT_DESCRIPTIONS[nation.government_type] || '';
   const activeBonuses = scapegoats.filter((sg) => !sg.sacrificed);
 

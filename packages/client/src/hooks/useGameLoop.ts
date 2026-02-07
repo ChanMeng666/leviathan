@@ -60,7 +60,7 @@ export function useGameLoop() {
     const govTransition = store.consumeGovTransition();
     if (govTransition && govTransition !== 'fela') {
       audioManager.playSfx('gov-transition');
-      const govLabel = GOVERNMENT_LABELS[govTransition] || govTransition;
+      const govLabel = GOVERNMENT_LABELS[govTransition] || '未知';
       store.addNarrative({
         day: newDay,
         title: `政体演变: ${govLabel}`,

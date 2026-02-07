@@ -179,7 +179,7 @@ function PhaseIndicator({ phase }: { phase: string }) {
   };
   return (
     <span className={`phase-chip ${styles[phase] ?? 'bg-surface text-dim'}`}>
-      {labels[phase] ?? phase}
+      {labels[phase] ?? '未知'}
     </span>
   );
 }

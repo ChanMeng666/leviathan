@@ -31,10 +31,10 @@ interface GalleryCardProps {
 }
 
 export function GalleryCard({ run, index, onClick }: GalleryCardProps) {
-  const deathLabel = DEATH_LABELS[run.deathReason] ?? run.deathReason;
+  const deathLabel = DEATH_LABELS[run.deathReason] ?? '未知';
   const borderColor = DEATH_COLORS[run.deathReason] ?? 'border-dim/40';
   const tagColor = DEATH_TAG_COLORS[run.deathReason] ?? 'bg-dim/20 text-dim';
-  const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? run.governmentType;
+  const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? '未知';
   const date = new Date(run.createdAt).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'short',

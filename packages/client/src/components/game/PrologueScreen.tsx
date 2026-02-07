@@ -3,19 +3,9 @@ import { motion } from 'framer-motion';
 import { TypewriterText } from '../ui/TypewriterText';
 import { BalatroBackground } from '../ui/BalatroBackground';
 import { useGameStore } from '../../stores';
-import { PROLOGUE_SCENARIO, getCardById } from '@leviathan/shared';
+import { PROLOGUE_SCENARIO, getCardById, STAT_LABELS } from '@leviathan/shared';
 import type { ScenarioChoice, GovernmentType, NationStatChanges } from '@leviathan/shared';
 import { useSfx } from '../../hooks/useAudio';
-
-const STAT_NAMES: Record<string, string> = {
-  narrative_integrity: '叙事完整度',
-  violence_authority: '暴力权威',
-  supply_level: '给养储备',
-  sanity: '理智度',
-  cruelty: '残暴值',
-  corruption: '腐败值',
-  population: '人口',
-};
 
 const PATH_TO_GOVERNMENT: Record<string, GovernmentType> = {
   path_legitimacy: 'bureaucracy',
@@ -144,7 +134,7 @@ export function PrologueScreen() {
                       key={k}
                       className={`pill-tag ${Number(v) > 0 ? 'bg-teal/15 text-teal' : 'bg-red/15 text-red'}`}
                     >
-                      {STAT_NAMES[k] ?? k}: {Number(v) > 0 ? '+' : ''}{v}
+                      {STAT_LABELS[k] ?? '其他'}: {Number(v) > 0 ? '+' : ''}{v}
                     </span>
                   ))}
                   {choice.new_trait && (

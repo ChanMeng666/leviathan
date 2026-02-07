@@ -1,5 +1,5 @@
-import { findMatchingCombo, getCardById } from '@leviathan/shared';
-import type { WeaveRequest, WeaveResult, Card, ComboFormula } from '@leviathan/shared';
+import { findMatchingCombo, getCardById, DEATH_REASON_LABELS } from '@leviathan/shared';
+import type { WeaveRequest, WeaveResult, Card, ComboFormula, GameOverReason } from '@leviathan/shared';
 
 /**
  * Local rule engine — used as fallback when no AI API key is configured.
@@ -100,9 +100,10 @@ export function processMockHistoryBook(
   traits: string[],
 ): { title: string; body: string; epitaph: string } {
   const traitStr = traits.length > 0 ? traits.join('、') : '一无所有';
+  const deathLabel = DEATH_REASON_LABELS[deathReason as GameOverReason] || deathReason;
   return {
     title: `${nationName}：一个${daysSurvived}天的实验`,
-    body: `${nationName}，一个存续了${daysSurvived}天的政治实体，以"${deathReason}"的方式走向终结。`
+    body: `${nationName}，一个存续了${daysSurvived}天的政治实体，以"${deathLabel}"的方式走向终结。`
       + `后世历史学家对这个短暂政权的评价莫衷一是，但有一点是确定的：`
       + `它留下了${traitStr}等令人印象深刻的"遗产"。`
       + `有学者认为，${nationName}的真正意义在于证明了一个古老的命题——`

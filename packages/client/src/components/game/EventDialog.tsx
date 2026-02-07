@@ -6,15 +6,7 @@ import { getCardById, EXTENDED_CARDS } from '@leviathan/shared';
 import type { EventChoice } from '@leviathan/shared';
 import { useSfx } from '../../hooks/useAudio';
 
-const STAT_NAMES: Record<string, string> = {
-  narrative_integrity: '叙事完整度',
-  violence_authority: '暴力权威',
-  supply_level: '给养储备',
-  sanity: '理智度',
-  cruelty: '残暴值',
-  corruption: '腐败值',
-  population: '人口',
-};
+import { STAT_LABELS } from '@leviathan/shared';
 
 export function EventDialog() {
   const activeEvent = useGameStore((s) => s.activeEvent);
@@ -98,7 +90,7 @@ export function EventDialog() {
                   key={k}
                   className={`pill-tag ${Number(v) > 0 ? 'bg-teal/15 text-teal' : 'bg-red/15 text-red'}`}
                 >
-                  {STAT_NAMES[k] ?? k}: {Number(v) > 0 ? '+' : ''}{v}
+                  {STAT_LABELS[k] ?? '其他'}: {Number(v) > 0 ? '+' : ''}{v}
                 </span>
               ))}
             </div>
