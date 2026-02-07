@@ -69,7 +69,6 @@ export function WelcomePage() {
 
       {/* Top-right toolbar */}
       <div className="fixed top-4 right-4 z-20 flex items-center gap-2">
-        <InfoMenuButton />
         {user ? (
           <UserMenu onOpenSaveManager={() => setShowSaveManager(true)} />
         ) : (
@@ -82,6 +81,7 @@ export function WelcomePage() {
           </button>
         )}
         <AudioSettingsButton direction="down" />
+        <InfoMenuButton />
       </div>
 
       <div className="relative z-10 max-w-lg w-full text-center px-4">
