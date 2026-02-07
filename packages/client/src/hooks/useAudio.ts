@@ -24,8 +24,7 @@ export function useBackgroundMusic() {
     const unlock = () => {
       if (!hasInteracted.current) {
         hasInteracted.current = true;
-        audioManager.preloadBgm();
-        // Determine correct track to play now
+        // Play the BGM track matching current state (loads on demand)
         const state = useGameStore.getState();
         const track = resolveTrack(state.screen, state.phase);
         if (track) audioManager.playBgm(track);

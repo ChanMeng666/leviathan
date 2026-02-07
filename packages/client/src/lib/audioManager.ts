@@ -35,7 +35,6 @@ class AudioManager {
         loop: true,
         volume: 0,
         preload: true,
-        html5: true,
       });
       this.bgmTracks.set(track, howl);
     }
@@ -71,14 +70,27 @@ class AudioManager {
       }
     }
 
-    // Fade in new
-    const newHowl = this.getOrCreateBgm(track);
-    const newId = newHowl.play();
-    newHowl.volume(0, newId);
-    newHowl.fade(0, targetVolume, BGM_FADE_MS, newId);
-
+    // Set track as current immediately to prevent race conditions
     this.currentBgm = track;
-    this.currentBgmId = newId;
+    this.currentBgmId = null;
+
+    const newHowl = this.getOrCreateBgm(track);
+
+    const startPlay = () => {
+      // Guard: track may have changed while loading
+      if (this.currentBgm !== track) return;
+      const newId = newHowl.play();
+      newHowl.volume(0, newId);
+      newHowl.fade(0, targetVolume, BGM_FADE_MS, newId);
+      this.currentBgmId = newId;
+    };
+
+    if (newHowl.state() === 'loaded') {
+      startPlay();
+    } else {
+      // Wait for load, then play
+      newHowl.once('load', startPlay);
+    }
   }
 
   stopBgm() {
@@ -117,17 +129,9 @@ class AudioManager {
   setMuted(muted: boolean) {
     this._muted = muted;
     Howler.mute(muted);
-    // Also update current BGM volume directly for immediate effect
     if (this.currentBgm && this.currentBgmId != null) {
       const howl = this.bgmTracks.get(this.currentBgm);
       howl?.volume(muted ? 0 : this._bgmVolume, this.currentBgmId);
-    }
-  }
-
-  preloadBgm() {
-    const tracks: BgmTrack[] = ['menu', 'prologue', 'gameplay', 'event', 'gameover'];
-    for (const t of tracks) {
-      this.getOrCreateBgm(t);
     }
   }
 
