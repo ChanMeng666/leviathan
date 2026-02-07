@@ -76,11 +76,15 @@ class AudioManager {
     // Fade out current
     if (this.currentBgm) {
       const oldHowl = this.bgmTracks.get(this.currentBgm);
-      if (oldHowl && this.currentBgmId != null) {
-        const id = this.currentBgmId;
-        const currentVol = (oldHowl.volume() as unknown as number) || 0;
-        oldHowl.fade(currentVol, 0, BGM_FADE_MS, id);
-        setTimeout(() => oldHowl.stop(id), BGM_FADE_MS);
+      if (oldHowl) {
+        if (this.currentBgmId != null) {
+          const id = this.currentBgmId;
+          const currentVol = (oldHowl.volume() as unknown as number) || 0;
+          oldHowl.fade(currentVol, 0, BGM_FADE_MS, id);
+          setTimeout(() => oldHowl.stop(), BGM_FADE_MS); // stop ALL instances (kills orphans)
+        } else {
+          oldHowl.stop(); // no tracked instance — kill any queued/orphaned plays immediately
+        }
       }
     }
 
@@ -119,6 +123,10 @@ class AudioManager {
     // but play() couldn't start (context was suspended). Retry now.
     if (this.currentBgmId == null) {
       const track = this._desiredTrack;
+      // Stop any orphaned instances before retrying
+      if (this.currentBgm) {
+        this.bgmTracks.get(this.currentBgm)?.stop();
+      }
       this.currentBgm = null; // reset so playBgm doesn't early-return
       this.playBgm(track);
       return;
@@ -128,6 +136,7 @@ class AudioManager {
     if (this.currentBgm) {
       const howl = this.bgmTracks.get(this.currentBgm);
       if (howl && !howl.playing(this.currentBgmId)) {
+        howl.stop(); // stop ALL instances including orphans
         const track = this.currentBgm as BgmTrack;
         this.currentBgm = null;
         this.playBgm(track);
@@ -142,7 +151,7 @@ class AudioManager {
         const id = this.currentBgmId;
         const currentVol = (howl.volume() as unknown as number) || 0;
         howl.fade(currentVol, 0, BGM_FADE_MS, id);
-        setTimeout(() => howl.stop(id), BGM_FADE_MS);
+        setTimeout(() => howl.stop(), BGM_FADE_MS);
       }
       this.currentBgm = null;
       this.currentBgmId = null;
@@ -152,10 +161,20 @@ class AudioManager {
 
   playSfx(name: SfxName) {
     if (this._muted) return;
-    this.resumeContext();
+    // Don't queue SFX when AudioContext is suspended — they would burst-play on unlock
+    const ctx = Howler.ctx;
+    if (ctx && ctx.state === 'suspended') return;
     const howl = this.getOrCreateSfx(name);
     howl.volume(this._sfxVolume);
     howl.play();
+  }
+
+  preloadEssentialSfx() {
+    const essentials: SfxName[] = ['btn-click', 'typewriter', 'card-select', 'card-deselect'];
+    for (const name of essentials) {
+      const howl = this.getOrCreateSfx(name);
+      if (howl.state() === 'unloaded') howl.load();
+    }
   }
 
   setBgmVolume(v: number) {

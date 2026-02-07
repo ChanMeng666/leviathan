@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { TypewriterText } from '../components/ui/TypewriterText';
 import { BalatroBackground } from '../components/ui/BalatroBackground';
 import { AuthModal } from '../components/auth/AuthModal';
@@ -10,6 +10,10 @@ import { useGameStore } from '../stores';
 import { useAuth } from '../hooks/useAuth';
 import { useCloudSaves } from '../hooks/useCloudSaves';
 import { useSfx } from '../hooks/useAudio';
+import { audioManager } from '../lib/audioManager';
+
+// Skip entry gate on subsequent visits within the same browser session
+let sessionAudioUnlocked = false;
 
 export function WelcomePage() {
   const day = useGameStore((s) => s.day);
@@ -29,6 +33,17 @@ export function WelcomePage() {
 
   const { play: sfx } = useSfx();
   const hasSave = day > 0;
+
+  const [audioUnlocked, setAudioUnlocked] = useState(sessionAudioUnlocked);
+
+  const handleEntryClick = useCallback(() => {
+    audioManager.resumeContext();
+    audioManager.preloadEssentialSfx();
+    // Small delay so AudioContext has time to resume before BGM starts
+    setTimeout(() => audioManager.ensurePlaying(), 100);
+    sessionAudioUnlocked = true;
+    setAudioUnlocked(true);
+  }, []);
 
   // Fetch cloud saves when user is logged in
   useEffect(() => {
@@ -240,6 +255,32 @@ export function WelcomePage() {
 
       {/* Full save manager modal */}
       <SaveManager open={showSaveManager} onClose={() => setShowSaveManager(false)} />
+
+      {/* Entry gate — provides user gesture to unlock AudioContext */}
+      <AnimatePresence>
+        {!audioUnlocked && (
+          <motion.div
+            key="entry-gate"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center cursor-pointer"
+            onClick={handleEntryClick}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <BalatroBackground className="z-0" />
+            <div className="relative z-10 text-center">
+              <div
+                className="text-accent text-4xl font-bold mb-4"
+                style={{ fontFamily: 'var(--font-display)' }}
+              >
+                利维坦的诞生
+              </div>
+              <div className="text-fg/50 text-sm animate-pulse">
+                点击任意位置开始
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
