@@ -6,6 +6,7 @@ import { createEventsSlice, type EventsSlice } from './slices/eventsSlice';
 import { createGameSlice, type GameSlice } from './slices/gameSlice';
 import { createNarrativeSlice, type NarrativeSlice } from './slices/narrativeSlice';
 import { createAuthSlice, type AuthSlice } from './slices/authSlice';
+import { buildSaveState } from './buildSaveState';
 
 export type GameStore = NationSlice & CardsSlice & EventsSlice & GameSlice & NarrativeSlice & AuthSlice;
 
@@ -21,20 +22,7 @@ export const useGameStore = create<GameStore>()(
     }),
     {
       name: 'leviathan-save',
-      partialize: (state) => ({
-        // Persist game-critical state; skip transient UI state and auth state
-        nation: state.nation,
-        deck: state.deck,
-        hand: state.hand,
-        discard: state.discard,
-        day: state.day,
-        phase: state.phase,
-        gameOver: state.gameOver,
-        gameOverReason: state.gameOverReason,
-        eventHistory: state.eventHistory,
-        eventCooldowns: state.eventCooldowns,
-        narrativeLog: state.narrativeLog,
-      }),
+      partialize: (state) => buildSaveState(state),
     },
   ),
 );

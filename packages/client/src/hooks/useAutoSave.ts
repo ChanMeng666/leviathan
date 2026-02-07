@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useGameStore } from '../stores';
 import { apiFetch } from '../lib/api';
+import { buildSaveState } from '../stores/buildSaveState';
 
 /** Auto-save: Zustand persist handles localStorage. For authenticated users, also saves to cloud. */
 export function useAutoSave() {
@@ -18,17 +19,7 @@ export function useAutoSave() {
       const store = useGameStore.getState();
       const body = {
         slotName: '自动存档',
-        nation: store.nation,
-        deck: store.deck,
-        hand: store.hand,
-        discard: store.discard,
-        day: store.day,
-        phase: store.phase,
-        gameOver: store.gameOver,
-        gameOverReason: store.gameOverReason,
-        eventHistory: store.eventHistory,
-        eventCooldowns: store.eventCooldowns,
-        narrativeLog: store.narrativeLog,
+        ...buildSaveState(store),
       };
 
       apiFetch('/api/saves', {

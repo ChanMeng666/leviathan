@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { apiFetch } from '../lib/api';
 import { useGameStore } from '../stores';
+import { buildSaveState } from '../stores/buildSaveState';
 import type { GameSaveMeta } from '@leviathan/shared';
 
 export function useCloudSaves() {
@@ -26,17 +27,7 @@ export function useCloudSaves() {
     const store = useGameStore.getState();
     const body = {
       slotName,
-      nation: store.nation,
-      deck: store.deck,
-      hand: store.hand,
-      discard: store.discard,
-      day: store.day,
-      phase: store.phase,
-      gameOver: store.gameOver,
-      gameOverReason: store.gameOverReason,
-      eventHistory: store.eventHistory,
-      eventCooldowns: store.eventCooldowns,
-      narrativeLog: store.narrativeLog,
+      ...buildSaveState(store),
     };
 
     const res = await apiFetch('/api/saves', {
