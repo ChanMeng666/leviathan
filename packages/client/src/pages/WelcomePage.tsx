@@ -58,10 +58,18 @@ export function WelcomePage() {
   const handleDeleteSave = useCallback(async (id: string) => {
     try {
       await deleteSave(id);
+      // If that was the last cloud save, also clear local state
+      if (saves.length <= 1) {
+        resetNation();
+        resetCards();
+        resetEvents();
+        resetNarratives();
+        resetGame();
+      }
     } catch {
       // Error handled silently
     }
-  }, [deleteSave]);
+  }, [deleteSave, saves.length, resetNation, resetCards, resetEvents, resetNarratives, resetGame]);
 
   const openLogin = () => {
     setAuthTab('login');
