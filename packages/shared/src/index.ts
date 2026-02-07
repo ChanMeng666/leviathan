@@ -28,6 +28,12 @@ export type {
   HistoryBookResult,
 } from './types/ai.js';
 
+export type {
+  GameSaveState,
+  GameSaveMeta,
+  GameRunRecord,
+} from './types/save.js';
+
 // Constants
 export { INITIAL_CARDS, EXTENDED_CARDS, ALL_CARDS, getCardById } from './constants/cards.js';
 export { GAME_EVENTS, getEventById } from './constants/events.js';

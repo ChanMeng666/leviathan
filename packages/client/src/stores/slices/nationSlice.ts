@@ -22,6 +22,7 @@ export interface NationSlice {
   addMythology: (myth: MythCard) => void;
   addHistoryEntry: (entry: string) => void;
   setGovernmentType: (type: GovernmentType) => void;
+  loadNation: (nation: NationSlice['nation']) => void;
   resetNation: () => void;
 }
 
@@ -87,6 +88,8 @@ export const createNationSlice: StateCreator<NationSlice, [], [], NationSlice> =
 
   setGovernmentType: (type) =>
     set((s) => ({ nation: { ...s.nation, government_type: type } })),
+
+  loadNation: (nation) => set({ nation }),
 
   resetNation: () => set({ nation: { ...initialNation, mythology: [], traits: [], history_log: [] } }),
 });

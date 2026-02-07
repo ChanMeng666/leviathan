@@ -8,6 +8,8 @@ import { EventDialog } from './EventDialog';
 import { GameOverScreen } from './GameOverScreen';
 import { ScapegoatWheel } from './ScapegoatWheel';
 import { HistoryBook } from './HistoryBook';
+import { UserMenu } from '../auth/UserMenu';
+import { SaveManager } from '../auth/SaveManager';
 import { useGameLoop } from '../../hooks/useGameLoop';
 
 export function GameBoard() {
@@ -20,6 +22,7 @@ export function GameBoard() {
 
   const [showScapegoat, setShowScapegoat] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSaveManager, setShowSaveManager] = useState(false);
 
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
 
@@ -47,6 +50,7 @@ export function GameBoard() {
           >
             历史档案
           </button>
+          <UserMenu onOpenSaveManager={() => setShowSaveManager(true)} />
           <PhaseIndicator phase={phase} />
         </div>
       </div>
@@ -106,6 +110,9 @@ export function GameBoard() {
 
       {/* History book */}
       <HistoryBook open={showHistory} onClose={() => setShowHistory(false)} />
+
+      {/* Save manager */}
+      <SaveManager open={showSaveManager} onClose={() => setShowSaveManager(false)} />
     </div>
   );
 }

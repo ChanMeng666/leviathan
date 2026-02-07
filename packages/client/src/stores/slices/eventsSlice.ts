@@ -18,6 +18,7 @@ export interface EventsSlice {
   checkEvents: (day: number) => void;
   setActiveEvent: (event: GameEvent | null, flavor?: string | null) => void;
   resolveEvent: (eventId: string, choiceId: string, day: number) => void;
+  loadEvents: (history: EventRecord[], cooldowns: Record<string, number>) => void;
   resetEvents: () => void;
 }
 
@@ -48,6 +49,15 @@ export const createEventsSlice: StateCreator<EventsSlice, [], [], EventsSlice> =
         [eventId]: day + (GAME_EVENTS.find((e) => e.id === eventId)?.cooldown ?? 5),
       },
     })),
+
+  loadEvents: (history, cooldowns) =>
+    set({
+      eventHistory: history,
+      eventCooldowns: cooldowns,
+      eventQueue: [],
+      activeEvent: null,
+      activeEventFlavor: null,
+    }),
 
   resetEvents: () =>
     set({

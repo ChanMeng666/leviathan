@@ -15,6 +15,7 @@ export interface NarrativeSlice {
 
   addNarrative: (entry: Omit<NarrativeEntry, 'id' | 'timestamp'>) => void;
   setCurrentNarrative: (entry: NarrativeEntry | null) => void;
+  loadNarratives: (log: NarrativeEntry[]) => void;
   resetNarratives: () => void;
 }
 
@@ -39,6 +40,11 @@ export const createNarrativeSlice: StateCreator<NarrativeSlice, [], [], Narrativ
   },
 
   setCurrentNarrative: (entry) => set({ currentNarrative: entry }),
+
+  loadNarratives: (log) => {
+    _narrativeId = log.length;
+    set({ narrativeLog: log, currentNarrative: log[log.length - 1] ?? null });
+  },
 
   resetNarratives: () => {
     _narrativeId = 0;

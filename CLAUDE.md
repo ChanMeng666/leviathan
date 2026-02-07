@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Leviathan (利维坦的诞生) is a political simulation card game built as a monorepo with npm workspaces. Players act as "nation inventors" using junk material cards to fabricate mythologies and build nations in a post-empire power vacuum. The game has a CRT terminal aesthetic and supports both AI-powered narrative generation (via OpenAI/Anthropic) and a fully playable mock mode with deterministic logic.
+Leviathan (利维坦的诞生) is a political simulation card game built as a monorepo with npm workspaces. Players act as "nation inventors" using junk material cards to fabricate mythologies and build nations in a post-empire power vacuum. The game has a Balatro-inspired visual aesthetic and supports both AI-powered narrative generation (via OpenAI/Anthropic) and a fully playable mock mode with deterministic logic.
 
 All UI text and game content is in Chinese (Simplified).
 
@@ -24,6 +24,16 @@ npm run build:shared  # Build only shared package
 
 # Type checking (shared package)
 npm run typecheck -w packages/shared
+
+# Database (requires .env.local with DATABASE_URL_UNPOOLED)
+npm run --include-workspace-root db:push      # Push schema to Neon
+npm run --include-workspace-root db:generate  # Generate migrations
+npm run --include-workspace-root db:migrate   # Run migrations
+npm run --include-workspace-root db:studio    # Open Drizzle Studio
+
+# Environment setup (Vercel + Neon)
+vercel link --project=leviathan-client
+vercel env pull .env.local
 ```
 
 No test framework is configured. No linter is configured.
@@ -39,9 +49,13 @@ No test framework is configured. No linter is configured.
 - Exported directly from source (no build step required for dev — `"main": "./src/index.ts"`)
 
 **`packages/client`** — Vite 6 + React 19 + TypeScript SPA
-- Zustand 5 store with 5 slices: `gameSlice` (phase/day), `nationSlice` (stats), `cardsSlice` (deck/hand/discard), `eventsSlice` (triggers/cooldowns), `narrativeSlice` (AI story log)
-- Persist middleware auto-saves to localStorage key `'leviathan-save'`
-- Tailwind CSS 4 with custom terminal theme defined in `styles/terminal.css` (CRT scanlines, glow effects, monospace font)
+- Zustand 5 store with 6 slices: `gameSlice` (phase/day), `nationSlice` (stats), `cardsSlice` (deck/hand/discard), `eventsSlice` (triggers/cooldowns), `narrativeSlice` (AI story log), `authSlice` (user/guest/token)
+- Persist middleware auto-saves to localStorage key `'leviathan-save'` (auth state excluded from persistence)
+- Neon Auth client (`@neondatabase/neon-js`) for Google OAuth + email/password authentication
+- `apiFetch()` wrapper in `lib/api.ts` auto-attaches Bearer token for authenticated users
+- Cloud auto-save on day change (debounced 2s) for authenticated users; localStorage remains primary
+- Guest mode bypasses login entirely — game works exactly as before
+- Tailwind CSS 4 with Balatro-inspired theme defined in `styles/terminal.css`
 - Framer Motion for card/dialog animations
 - Vite proxies `/api` requests to the backend at localhost:3001
 
@@ -51,11 +65,22 @@ No test framework is configured. No linter is configured.
   - `POST /api/event-flavor` — Government-type flavored event text (temp 0.8)
   - `POST /api/judge` — Historical consistency check (temp 0.3)
   - `POST /api/history-book` — Post-death historical epitaph (temp 0.7)
-- `GET /api/health` — Returns `{status, mode}` (ai or mock)
+- Save/Load routes (all require `requireAuth` JWT middleware):
+  - `GET /api/saves` — List user's cloud saves
+  - `GET /api/saves/:id` — Load a specific save
+  - `POST /api/saves` — Create/update save (upsert by userId + slotName)
+  - `DELETE /api/saves/:id` — Delete a save
+  - `POST /api/saves/record-run` — Record completed game history
+  - `GET /api/saves/runs` — Get user's past game runs
+- `GET /api/health` — Returns `{status, mode, db}` (ai or mock, db connectivity)
+- Auth middleware: `optionalAuth` on all `/api` routes, `requireAuth` on `/api/saves`
+- JWT verification via `jose` against Neon Auth JWKS endpoint
+- Drizzle ORM with `@neondatabase/serverless` (neon-http driver)
+- Database schema: `game_saves` (JSONB state snapshots), `game_runs` (completed game history)
 - AI provider priority: OpenAI (`gpt-4.1-mini-2025-04-14`) > Anthropic (`claude-sonnet-4-5`) > mock mode
 - Services: `comboEngine` (deterministic mock logic), `promptBuilder` (prompt construction), `contextManager` (sliding window of 20 entries)
 - Rate limiter: 20 req/min per IP on all `/api` routes
-- Loads `.env` from monorepo root
+- Loads `.env.local` then `.env` from monorepo root
 
 ### Key Data Flow
 
@@ -75,10 +100,14 @@ No test framework is configured. No linter is configured.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env`. Without API keys, the game runs in mock mode.
+Use `vercel env pull .env.local` to get database and auth variables. Copy `.env.example` to `.env` for local overrides. Without API keys, the game runs in mock mode. Without DATABASE_URL, cloud saves are disabled.
 
 ```
-OPENAI_API_KEY=       # Primary AI provider
-ANTHROPIC_API_KEY=    # Fallback AI provider
-PORT=3001             # Server port
+OPENAI_API_KEY=          # Primary AI provider
+ANTHROPIC_API_KEY=       # Fallback AI provider
+PORT=3001                # Server port
+DATABASE_URL=            # Neon Postgres (pooled)
+DATABASE_URL_UNPOOLED=   # Neon Postgres (direct, for migrations)
+NEON_AUTH_BASE_URL=      # Neon Auth server URL (JWKS derived from this)
+VITE_NEON_AUTH_URL=      # Neon Auth client URL (exposed to browser)
 ```

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useGameStore } from '../stores';
 import { GAME_EVENTS } from '@leviathan/shared';
 import type { GameEvent, NationState, EventFlavorRequest } from '@leviathan/shared';
+import { apiFetch } from '../lib/api';
 
 export function useGameLoop() {
   const advanceDay = useCallback(() => {
@@ -94,9 +95,8 @@ async function triggerEvent(
       traits: nation.traits,
     };
 
-    const res = await fetch('/api/event-flavor', {
+    const res = await apiFetch('/api/event-flavor', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(flavorReq),
     });
 

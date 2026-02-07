@@ -14,6 +14,7 @@ export interface GameSlice {
   setGameOver: (reason: GameOverReason) => void;
   setIsWeaving: (v: boolean) => void;
   setShowMenu: (v: boolean) => void;
+  loadGame: (day: number, phase: GamePhase, gameOver: boolean, gameOverReason: GameOverReason | null) => void;
   resetGame: () => void;
 }
 
@@ -36,6 +37,9 @@ export const createGameSlice: StateCreator<GameSlice, [], [], GameSlice> = (set)
   setIsWeaving: (v) => set({ isWeaving: v }),
 
   setShowMenu: (v) => set({ showMenu: v }),
+
+  loadGame: (day, phase, gameOver, gameOverReason) =>
+    set({ day, phase, gameOver, gameOverReason, isWeaving: false, showMenu: false }),
 
   resetGame: () =>
     set({

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useGameStore } from '../stores';
 import type { WeaveRequest, WeaveResult } from '@leviathan/shared';
 import { findMatchingCombo, getCardById } from '@leviathan/shared';
+import { apiFetch } from '../lib/api';
 
 export function useAINarrative() {
   const weave = useCallback(async (intent: string) => {
@@ -33,9 +34,8 @@ export function useAINarrative() {
         history_context: nation.history_log.slice(-10),
       };
 
-      const res = await fetch('/api/weave', {
+      const res = await apiFetch('/api/weave', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       });
 

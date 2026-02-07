@@ -15,6 +15,7 @@ export interface CardsSlice {
   discardSelected: () => void;
   addCardToHand: (card: Card) => void;
   addCardToDeck: (card: Card) => void;
+  loadCards: (deck: Card[], hand: Card[], discard: Card[]) => void;
   resetCards: () => void;
 }
 
@@ -86,6 +87,9 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
 
   addCardToDeck: (card) =>
     set((s) => ({ deck: [...s.deck, card] })),
+
+  loadCards: (deck, hand, discard) =>
+    set({ deck, hand, discard, selectedCards: [] }),
 
   resetCards: () =>
     set({
