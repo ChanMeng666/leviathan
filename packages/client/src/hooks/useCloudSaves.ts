@@ -54,12 +54,15 @@ export function useCloudSaves() {
     // Apply loaded state to store
     store.loadNation(data.nation);
     store.loadCards(data.deck, data.hand, data.discard);
-    store.loadEvents(data.eventHistory, data.eventCooldowns);
-    store.loadGame(data.day, data.phase, data.gameOver, data.gameOverReason);
+    store.loadEvents(data.eventHistory);
+    store.loadGame(data.phase, data.crisisState, data.gameOver, data.gameOverReason);
     store.loadNarratives(data.narrativeLog);
-    if (data.scapegoats) store.loadScapegoats(data.scapegoats);
-    if (data.governmentAffinities) store.loadAffinities(data.governmentAffinities);
-    if (data.discoveredExtended) store.loadDiscovered(data.discoveredExtended);
+    store.loadShop(
+      data.influence ?? 0,
+      data.equippedDecrees ?? [],
+      data.consumables ?? [],
+      data.intentLevels ?? [],
+    );
   }, []);
 
   const deleteSave = useCallback(async (id: string) => {

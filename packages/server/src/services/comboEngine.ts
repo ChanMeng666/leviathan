@@ -49,13 +49,13 @@ function genericResult(cards: Card[], req: WeaveRequest): WeaveResult {
   const hasPropaganda = allTags.includes('宣传') || allTags.includes('历史');
 
   const statsChange: Record<string, number> = {};
-  if (hasPropaganda || hasFaith) statsChange.narrative_integrity = Math.min(12, Math.round(totalPotential * 0.04));
-  if (hasViolence) statsChange.violence_authority = Math.round(totalPotential * 0.08);
-  if (hasFood) statsChange.supply_level = Math.round(totalPhysical * 0.3);
-  if (hasAuthority) statsChange.corruption = Math.round(totalPotential * 0.03);
+  if (hasPropaganda || hasFaith) statsChange.mythDensity = Math.min(12, Math.round(totalPotential * 0.04));
+  if (hasViolence) statsChange.power = Math.round(totalPotential * 0.08);
+  if (hasFood) statsChange.supply = Math.round(totalPhysical * 0.3);
+  if (hasAuthority) statsChange.tyranny = Math.round(totalPotential * 0.03);
   statsChange.sanity = -Math.round(totalPotential * 0.03);
   // Base supply cost for running the loom
-  statsChange.supply_level = (statsChange.supply_level ?? 0) - 3;
+  statsChange.supply = (statsChange.supply ?? 0) - 3;
 
   const cardNames = cards.map((c) => c.name).join('、');
   const storyText = `民族发明家将${cardNames}投入叙事纺织机。`
@@ -98,15 +98,18 @@ export function processMockEventFlavor(
 export function processMockHistoryBook(
   nationName: string,
   deathReason: string,
-  daysSurvived: number,
+  erasSurvived: number,
+  totalScore: number,
   traits: string[],
 ): { title: string; body: string; epitaph: string } {
   const traitStr = traits.length > 0 ? traits.join('、') : '一无所有';
-  const deathLabel = DEATH_REASON_LABELS[deathReason as GameOverReason] || deathReason;
+  const deathLabel = deathReason === 'victory'
+    ? '胜利'
+    : (DEATH_REASON_LABELS[deathReason as GameOverReason] || deathReason);
   return {
-    title: `${nationName}：一个${daysSurvived}天的实验`,
-    body: `${nationName}，一个存续了${daysSurvived}天的政治实体，以"${deathLabel}"的方式走向终结。`
-      + `后世历史学家对这个短暂政权的评价莫衷一是，但有一点是确定的：`
+    title: `${nationName}：一个跨越${erasSurvived}个纪元的实验`,
+    body: `${nationName}，一个存续了${erasSurvived}个纪元、累计${totalScore.toLocaleString()}分的政治实体，以"${deathLabel}"的方式走向终结。`
+      + `后世历史学家对这个政权的评价莫衷一是，但有一点是确定的：`
       + `它留下了${traitStr}等令人印象深刻的"遗产"。`
       + `有学者认为，${nationName}的真正意义在于证明了一个古老的命题——`
       + `任何叙事都能构建，但并非所有叙事都能在现实面前存活。`,

@@ -1,17 +1,17 @@
 import type { GovernmentType, GameOverReason, NationStatChanges } from '../types/game.js';
 
 /**
- * Daily entropy modifiers per government type.
- * These replace the flat -5/-5/-2 entropy with government-specific rates.
- * More negative = faster decay. Values represent daily stat changes.
+ * Entropy modifiers per government type.
+ * Applied at each era transition (not every day).
+ * Era multiplier is applied externally.
  */
 export const GOVERNMENT_EFFECTS: Record<GovernmentType, Partial<NationStatChanges>> = {
-  undefined:   { narrative_integrity: -5, supply_level: -5, violence_authority: -2 },
-  theocracy:   { narrative_integrity: -3, supply_level: -5, violence_authority: -2, sanity: -3 },
-  warlord:     { narrative_integrity: -7, supply_level: -7, violence_authority: -1 },
-  bureaucracy: { narrative_integrity: -4, supply_level: -3, violence_authority: -2, corruption: 3 },
-  tribal:      { narrative_integrity: -5, supply_level: -4, violence_authority: -3, sanity: -1 },
-  fela:        { narrative_integrity: -8, supply_level: -3, violence_authority: -4 },
+  undefined:   { power: -3, supply: -3, sanity: -2 },
+  theocracy:   { power: -2, supply: -3, sanity: -4 },
+  warlord:     { power: -1, supply: -5, sanity: -2 },
+  bureaucracy: { power: -2, supply: -2, sanity: -2, tyranny: 3 },
+  tribal:      { power: -3, supply: -2, sanity: -1 },
+  fela:        { power: -5, supply: -4, sanity: -5, tyranny: 5 },
 };
 
 export const GOVERNMENT_LABELS: Record<GovernmentType, string> = {
@@ -25,27 +25,25 @@ export const GOVERNMENT_LABELS: Record<GovernmentType, string> = {
 
 export const GOVERNMENT_DESCRIPTIONS: Record<GovernmentType, string> = {
   undefined:   '尚未形成明确的政体',
-  theocracy:   '叙事衰减缓慢，但理智加速流失',
-  warlord:     '军事强势，但资源和叙事快速消耗',
-  bureaucracy: '稳定但腐败不断滋生',
-  tribal:      '韧性强但发展受限',
-  fela:        '全面衰退——一切都在加速崩溃',
+  theocracy:   '叙事力 ×1.15 | 理智衰减加速',
+  warlord:     '政治杠杆 ×1.15 | 物资消耗加速',
+  bureaucracy: '叙事力 +20 | 暴虐值缓慢增长',
+  tribal:      '共享标签时 PL+0.5 | 均衡衰减',
+  fela:        '全面衰退——计分 ×0.7',
 };
 
 export const DEATH_REASON_LABELS: Record<GameOverReason, string> = {
   riot: '暴乱',
   starvation: '饥荒',
-  madness: '叙事过载',
   insanity: '精神崩溃',
 };
 
 export const STAT_LABELS: Record<string, string> = {
-  narrative_integrity: '叙事完整度',
-  violence_authority: '暴力权威',
-  supply_level: '给养储备',
-  sanity: '理智度',
-  cruelty: '残暴值',
-  corruption: '腐败值',
+  power: '权力',
+  supply: '物资',
+  sanity: '理智',
+  tyranny: '暴虐',
+  mythDensity: '神话浓度',
   population: '人口',
 };
 

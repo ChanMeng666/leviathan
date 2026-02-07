@@ -48,7 +48,7 @@ export function SaveList({ saves, isLoading, onLoad, onDelete, compact }: SaveLi
                   <span className="truncate">
                     {save.nationName}
                     <span className="text-dim text-xs ml-1">
-                      第 <span className="font-mono">{save.day}</span> 天
+                      纪元 <span className="font-mono">{save.era}</span> · {save.totalScore.toLocaleString()} 分
                     </span>
                   </span>
                 </div>

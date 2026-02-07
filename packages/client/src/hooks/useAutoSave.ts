@@ -5,13 +5,14 @@ import { buildSaveState } from '../stores/buildSaveState';
 
 /** Auto-save: Zustand persist handles localStorage. For authenticated users, also saves to cloud. */
 export function useAutoSave() {
-  const day = useGameStore((s) => s.day);
+  const era = useGameStore((s) => s.crisisState.era);
+  const crisisIndex = useGameStore((s) => s.crisisState.crisisIndex);
   const user = useGameStore((s) => s.user);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
-    // Only cloud-save for authenticated users, and only after day 0
-    if (!user || day <= 0) return;
+    // Only cloud-save for authenticated users, and only after the game has started
+    if (!user || era <= 0) return;
 
     // Debounce cloud save
     clearTimeout(debounceRef.current);
@@ -31,5 +32,5 @@ export function useAutoSave() {
     }, 2000);
 
     return () => clearTimeout(debounceRef.current);
-  }, [day, user]);
+  }, [era, crisisIndex, user]);
 }

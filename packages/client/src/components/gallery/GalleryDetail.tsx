@@ -6,17 +6,21 @@ import { Modal } from '../ui/Modal';
 const DEATH_LABELS: Record<string, string> = {
   riot: '暴乱覆灭',
   starvation: '饥荒亡国',
-  madness: '叙事过载',
   insanity: '精神崩溃',
 };
 
+const VICTORY_LABELS: Record<string, string> = {
+  gold: '利维坦升天',
+  silver: '苟延残喘',
+  bronze: '惨胜',
+};
+
 const STAT_CONFIG: { key: string; label: string; color: string }[] = [
-  { key: 'narrative_integrity', label: '叙事完整性', color: 'text-blue' },
-  { key: 'violence_authority', label: '暴力权威', color: 'text-red' },
-  { key: 'supply_level', label: '物资水平', color: 'text-gold' },
+  { key: 'power', label: '权力', color: 'text-red' },
+  { key: 'supply', label: '物资', color: 'text-gold' },
   { key: 'sanity', label: '理智', color: 'text-teal' },
-  { key: 'cruelty', label: '残酷度', color: 'text-orange' },
-  { key: 'corruption', label: '腐败度', color: 'text-purple' },
+  { key: 'tyranny', label: '暴虐', color: 'text-orange' },
+  { key: 'mythDensity', label: '神话浓度', color: 'text-purple' },
 ];
 
 interface GalleryDetailProps {
@@ -29,7 +33,9 @@ export function GalleryDetail({ run, open, onClose }: GalleryDetailProps) {
   if (!run) return null;
 
   const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? '未知';
-  const deathLabel = DEATH_LABELS[run.deathReason] ?? '未知';
+  const outcomeLabel = run.victoryType
+    ? VICTORY_LABELS[run.victoryType] ?? '胜利'
+    : DEATH_LABELS[run.deathReason ?? ''] ?? '未知';
 
   return (
     <Modal open={open} onClose={onClose} title={run.nationName}>
@@ -37,30 +43,30 @@ export function GalleryDetail({ run, open, onClose }: GalleryDetailProps) {
         {/* Summary stats */}
         <div className="grid grid-cols-3 gap-2">
           <div className="panel p-3 text-center">
-            <div className="text-xs text-dim mb-1">存活天数</div>
-            <div className="text-lg font-bold font-mono text-accent">{run.daysSurvived}</div>
+            <div className="text-xs text-dim mb-1">存活纪元</div>
+            <div className="text-lg font-bold font-mono text-accent">{run.erasSurvived}</div>
           </div>
           <div className="panel p-3 text-center">
-            <div className="text-xs text-dim mb-1">最终人口</div>
-            <div className="text-lg font-bold font-mono text-fg">{run.finalPopulation}</div>
+            <div className="text-xs text-dim mb-1">总分</div>
+            <div className="text-lg font-bold font-mono text-gold">{run.totalScore.toLocaleString()}</div>
           </div>
           <div className="panel p-3 text-center">
-            <div className="text-xs text-dim mb-1">覆灭原因</div>
-            <div className="text-sm font-bold text-red">{deathLabel}</div>
+            <div className="text-xs text-dim mb-1">结局</div>
+            <div className={`text-sm font-bold ${run.victoryType ? 'text-gold' : 'text-red'}`}>{outcomeLabel}</div>
           </div>
         </div>
 
-        {/* Government */}
-        <div className="text-center">
-          <span className="text-xs text-dim">政体：</span>
-          <span className="text-sm font-bold text-gold">{govLabel}</span>
+        {/* Government + Population */}
+        <div className="flex justify-center gap-4 text-sm">
+          <span><span className="text-dim">政体：</span><span className="font-bold text-gold">{govLabel}</span></span>
+          <span><span className="text-dim">最终人口：</span><span className="font-bold text-fg font-mono">{run.finalPopulation}</span></span>
         </div>
 
         {/* Final stats */}
         {run.finalStats && (
           <div>
             <div className="text-xs text-dim mb-2">最终属性</div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {STAT_CONFIG.map(({ key, label, color }) => (
                 <div key={key} className="panel p-2 text-center">
                   <div className="text-[10px] text-dim mb-1">{label}</div>
@@ -97,26 +103,6 @@ export function GalleryDetail({ run, open, onClose }: GalleryDetailProps) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Scapegoats */}
-        {run.scapegoats && run.scapegoats.length > 0 && (
-          <div>
-            <div className="text-xs text-dim mb-2">替罪羊</div>
-            <div className="flex flex-wrap gap-1">
-              {run.scapegoats.map((sg) => (
-                <span
-                  key={sg.id}
-                  className={`pill-tag text-xs ${sg.sacrificed ? 'bg-red/20 text-red line-through' : ''}`}
-                >
-                  {sg.name}{sg.sacrificed ? '（已献祭）' : ''}
-                </span>
-              ))}
-            </div>
-            {run.scapegoats.every((sg) => !sg.sacrificed) && (
-              <div className="text-[10px] text-dim/60 mt-1 italic">未献祭任何替罪羊</div>
-            )}
           </div>
         )}
 

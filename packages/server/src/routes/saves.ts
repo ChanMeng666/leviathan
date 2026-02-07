@@ -21,26 +21,31 @@ router.get('/saves', async (req, res) => {
       .select({
         id: gameSaves.id,
         slotName: gameSaves.slotName,
-        day: gameSaves.day,
         phase: gameSaves.phase,
         gameOver: gameSaves.gameOver,
         nationState: gameSaves.nationState,
+        crisisState: gameSaves.crisisState,
         updatedAt: gameSaves.updatedAt,
       })
       .from(gameSaves)
       .where(eq(gameSaves.userId, req.userId!))
       .orderBy(desc(gameSaves.updatedAt));
 
-    // Return lightweight meta (extract nation name from JSONB)
-    const meta = saves.map((s) => ({
-      id: s.id,
-      slotName: s.slotName,
-      day: s.day,
-      phase: s.phase,
-      gameOver: s.gameOver,
-      nationName: (s.nationState as any)?.name ?? '未命名',
-      updatedAt: s.updatedAt,
-    }));
+    // Return lightweight meta
+    const meta = saves.map((s) => {
+      const crisis = s.crisisState as any;
+      return {
+        id: s.id,
+        slotName: s.slotName,
+        era: crisis?.era ?? 1,
+        crisisIndex: crisis?.crisisIndex ?? 0,
+        phase: s.phase,
+        gameOver: s.gameOver,
+        nationName: (s.nationState as any)?.name ?? '未命名',
+        totalScore: crisis?.totalScore ?? 0,
+        updatedAt: s.updatedAt,
+      };
+    });
 
     res.json(meta);
   } catch (err) {
@@ -74,16 +79,16 @@ router.get('/saves/:id', async (req, res) => {
       deck: save.deck,
       hand: save.hand,
       discard: save.discard,
-      day: save.day,
       phase: save.phase,
       gameOver: save.gameOver,
       gameOverReason: save.gameOverReason,
+      crisisState: save.crisisState,
       eventHistory: save.eventHistory,
-      eventCooldowns: save.eventCooldowns,
       narrativeLog: save.narrativeLog,
-      scapegoats: save.scapegoats,
-      governmentAffinities: save.governmentAffinities,
-      discoveredExtended: save.discoveredExtended,
+      influence: save.influence,
+      equippedDecrees: save.equippedDecrees,
+      consumables: save.consumables,
+      intentLevels: save.intentLevels,
     });
   } catch (err) {
     console.error('Failed to load save:', err);
@@ -98,7 +103,11 @@ router.post('/saves', async (req, res) => {
     return;
   }
   try {
-    const { slotName, nation, deck, hand, discard, day, phase, gameOver, gameOverReason, eventHistory, eventCooldowns, narrativeLog, scapegoats, governmentAffinities, discoveredExtended } = req.body;
+    const {
+      slotName, nation, deck, hand, discard, phase, gameOver, gameOverReason,
+      crisisState, eventHistory, narrativeLog,
+      influence, equippedDecrees, consumables, intentLevels,
+    } = req.body;
 
     if (!slotName) {
       res.status(400).json({ error: '缺少存档槽名称' });
@@ -113,51 +122,37 @@ router.post('/saves', async (req, res) => {
       .from(gameSaves)
       .where(and(eq(gameSaves.userId, req.userId!), eq(gameSaves.slotName, slotName)));
 
+    const saveData = {
+      nationState: nation,
+      deck,
+      hand,
+      discard,
+      phase,
+      gameOver: gameOver ?? false,
+      gameOverReason: gameOverReason ?? null,
+      crisisState: crisisState ?? {},
+      eventHistory: eventHistory ?? [],
+      narrativeLog: narrativeLog ?? [],
+      influence: influence ?? 0,
+      equippedDecrees: equippedDecrees ?? [],
+      consumables: consumables ?? [],
+      intentLevels: intentLevels ?? [],
+    };
+
     if (existing) {
-      // Update existing save
       await db
         .update(gameSaves)
-        .set({
-          nationState: nation,
-          deck,
-          hand,
-          discard,
-          day,
-          phase,
-          gameOver: gameOver ?? false,
-          gameOverReason: gameOverReason ?? null,
-          eventHistory,
-          eventCooldowns,
-          narrativeLog,
-          scapegoats: scapegoats ?? null,
-          governmentAffinities: governmentAffinities ?? null,
-          discoveredExtended: discoveredExtended ?? null,
-          updatedAt: new Date(),
-        } as Partial<typeof gameSaves.$inferInsert>)
+        .set({ ...saveData, updatedAt: new Date() } as Partial<typeof gameSaves.$inferInsert>)
         .where(eq(gameSaves.id, existing.id));
 
       res.json({ id: existing.id, updated: true });
     } else {
-      // Create new save
       const [inserted] = await db
         .insert(gameSaves)
         .values({
           userId: req.userId!,
           slotName,
-          nationState: nation,
-          deck,
-          hand,
-          discard,
-          day,
-          phase,
-          gameOver: gameOver ?? false,
-          gameOverReason: gameOverReason ?? null,
-          eventHistory,
-          eventCooldowns,
-          narrativeLog,
-          scapegoats: scapegoats ?? null,
-          governmentAffinities: governmentAffinities ?? null,
-          discoveredExtended: discoveredExtended ?? null,
+          ...saveData,
         } as typeof gameSaves.$inferInsert)
         .returning({ id: gameSaves.id });
 
@@ -177,8 +172,9 @@ router.post('/saves/record-run', async (req, res) => {
   }
   try {
     const {
-      nationName, daysSurvived, deathReason, governmentType, finalPopulation, epitaph,
-      traits, mythology, scapegoats, finalStats, historyBookTitle, historyBookBody, historyLog,
+      nationName, erasSurvived, deathReason, victoryType, governmentType,
+      totalScore, finalPopulation, epitaph,
+      traits, mythology, finalStats, historyBookTitle, historyBookBody, historyLog,
     } = req.body;
 
     const db = getDb();
@@ -187,14 +183,15 @@ router.post('/saves/record-run', async (req, res) => {
       .values({
         userId: req.userId!,
         nationName,
-        daysSurvived,
-        deathReason,
+        erasSurvived: erasSurvived ?? 1,
+        deathReason: deathReason ?? null,
+        victoryType: victoryType ?? null,
         governmentType,
+        totalScore: totalScore ?? 0,
         finalPopulation,
         epitaph: epitaph ?? null,
         traits: traits ?? null,
         mythology: mythology ?? null,
-        scapegoats: scapegoats ?? null,
         finalStats: finalStats ?? null,
         historyBookTitle: historyBookTitle ?? null,
         historyBookBody: historyBookBody ?? null,

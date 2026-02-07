@@ -8,23 +8,24 @@ import { useSfx } from '../../hooks/useAudio';
 interface ScapegoatWheelProps {
   open: boolean;
   onClose: () => void;
+  groups: ScapegoatGroup[];
 }
 
-export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
+/**
+ * ScapegoatWheel — legacy component, currently unused in the crisis-based game loop.
+ * Kept for potential future reuse.
+ */
+export function ScapegoatWheel({ open, onClose, groups }: ScapegoatWheelProps) {
   const [spinning, setSpinning] = useState(false);
   const [selected, setSelected] = useState<ScapegoatGroup | null>(null);
   const nation = useGameStore((s) => s.nation);
-  const day = useGameStore((s) => s.day);
-  const scapegoats = useGameStore((s) => s.scapegoats);
   const applyStatChanges = useGameStore((s) => s.applyStatChanges);
   const addTrait = useGameStore((s) => s.addTrait);
   const addHistoryEntry = useGameStore((s) => s.addHistoryEntry);
-  const sacrificeGroup = useGameStore((s) => s.sacrificeGroup);
   const incrementAffinity = useGameStore((s) => s.incrementAffinity);
   const { play: sfx } = useSfx();
 
-  const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
-  const availableGroups = scapegoats.filter((sg) => !sg.sacrificed);
+  const availableGroups = groups.filter((sg) => !sg.sacrificed);
 
   const handleSacrifice = (group: ScapegoatGroup) => {
     sfx('wheel-spin');
@@ -34,15 +35,12 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
     setTimeout(() => {
       sfx('sacrifice');
       applyStatChanges({
-        narrative_integrity: 20,
-        violence_authority: 10,
-        cruelty: 15,
+        power: 10,
+        tyranny: 15,
         population: -100,
       });
-      sacrificeGroup(group.id);
       addTrait(`清洗了${group.name}`);
-      addHistoryEntry(`[第${day}天] 替罪羊轮盘: 清洗了${group.name}，永久失去其每回合加成。`);
-      // Scapegoat sacrifice boosts theocracy and warlord affinities
+      addHistoryEntry(`替罪羊轮盘: 清洗了${group.name}。`);
       incrementAffinity('theocracy', 10);
       incrementAffinity('warlord', 8);
       setSpinning(false);
@@ -53,7 +51,7 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
   return (
     <Modal open={open} onClose={spinning ? undefined : onClose} title="替罪羊轮盘" variant="danger">
       <div className="text-center mb-4">
-        <div className="text-red text-lg font-bold">不满值: {unsat}%</div>
+        <div className="text-red text-lg font-bold">权力: {nation.power}%</div>
         <div className="text-xs text-dim mt-1">
           选择一个群体作为替罪羊。他们将永远消失，但民众的怒火会暂时平息。
         </div>
@@ -80,7 +78,7 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {scapegoats.map((group) => (
+          {groups.map((group) => (
             <button
               key={group.id}
               className={`w-full card-face border-2 p-3 text-left transition-colors rounded-[var(--radius-card)] ${

@@ -20,7 +20,8 @@ router.post('/history-book', async (req, res) => {
       const result = processMockHistoryBook(
         body.nation_state.name,
         body.death_reason,
-        body.days_survived,
+        body.eras_survived,
+        body.total_score,
         body.nation_state.traits,
       );
       res.json(result);
@@ -43,7 +44,8 @@ router.post('/history-book', async (req, res) => {
       result = processMockHistoryBook(
         body.nation_state.name,
         body.death_reason,
-        body.days_survived,
+        body.eras_survived,
+        body.total_score,
         body.nation_state.traits,
       );
     }
@@ -56,7 +58,8 @@ router.post('/history-book', async (req, res) => {
       processMockHistoryBook(
         body.nation_state.name,
         body.death_reason,
-        body.days_survived,
+        body.eras_survived ?? 1,
+        body.total_score ?? 0,
         body.nation_state.traits,
       ),
     );

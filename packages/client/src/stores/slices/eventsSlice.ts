@@ -1,64 +1,35 @@
 import type { StateCreator } from 'zustand';
 import type { GameEvent, EventRecord } from '@leviathan/shared';
-import { GAME_EVENTS } from '@leviathan/shared';
 
 export interface EventsSlice {
-  eventQueue: GameEvent[];
   activeEvent: GameEvent | null;
   activeEventFlavor: string | null;
   eventHistory: EventRecord[];
-  eventCooldowns: Record<string, number>;  // eventId -> day when cooldown expires
 
-  checkEvents: (day: number) => void;
   setActiveEvent: (event: GameEvent | null, flavor?: string | null) => void;
-  resolveEvent: (eventId: string, choiceId: string, day: number) => void;
-  loadEvents: (history: EventRecord[], cooldowns: Record<string, number>) => void;
+  resolveEvent: (eventId: string, choiceId: string, era: number) => void;
+  loadEvents: (history: EventRecord[]) => void;
   resetEvents: () => void;
 }
 
-export const createEventsSlice: StateCreator<EventsSlice, [], [], EventsSlice> = (set, get) => ({
-  eventQueue: [],
+export const createEventsSlice: StateCreator<EventsSlice, [], [], EventsSlice> = (set) => ({
   activeEvent: null,
   activeEventFlavor: null,
   eventHistory: [],
-  eventCooldowns: {},
-
-  checkEvents: (_day) =>
-    set(() => {
-      // Events are checked externally via useGameLoop which has access to nation state
-      // This is a placeholder — the actual trigger check happens in the hook
-      return {};
-    }),
 
   setActiveEvent: (event, flavor = null) =>
     set({ activeEvent: event, activeEventFlavor: flavor ?? null }),
 
-  resolveEvent: (eventId, choiceId, day) =>
+  resolveEvent: (eventId, choiceId, era) =>
     set((s) => ({
       activeEvent: null,
       activeEventFlavor: null,
-      eventHistory: [...s.eventHistory, { eventId, day, choiceId }],
-      eventCooldowns: {
-        ...s.eventCooldowns,
-        [eventId]: day + (GAME_EVENTS.find((e) => e.id === eventId)?.cooldown ?? 5),
-      },
+      eventHistory: [...s.eventHistory, { eventId, era, choiceId }],
     })),
 
-  loadEvents: (history, cooldowns) =>
-    set({
-      eventHistory: history,
-      eventCooldowns: cooldowns,
-      eventQueue: [],
-      activeEvent: null,
-      activeEventFlavor: null,
-    }),
+  loadEvents: (history) =>
+    set({ eventHistory: history, activeEvent: null, activeEventFlavor: null }),
 
   resetEvents: () =>
-    set({
-      eventQueue: [],
-      activeEvent: null,
-      activeEventFlavor: null,
-      eventHistory: [],
-      eventCooldowns: {},
-    }),
+    set({ activeEvent: null, activeEventFlavor: null, eventHistory: [] }),
 });

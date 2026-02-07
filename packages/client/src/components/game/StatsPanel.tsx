@@ -6,49 +6,34 @@ import { audioManager } from '../../lib/audioManager';
 
 export function StatsPanel() {
   const nation = useGameStore((s) => s.nation);
-  const day = useGameStore((s) => s.day);
-  const scapegoats = useGameStore((s) => s.scapegoats);
+  const crisisState = useGameStore((s) => s.crisisState);
+  const influence = useGameStore((s) => s.influence);
 
-  // Track stat changes for sfx
-  const prevStats = useRef({
-    narrative_integrity: nation.narrative_integrity,
-    violence_authority: nation.violence_authority,
-    supply_level: nation.supply_level,
-    sanity: nation.sanity,
-  });
+  const prevStats = useRef({ power: nation.power, supply: nation.supply, sanity: nation.sanity });
   const dangerTriggered = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     const prev = prevStats.current;
-    const stats = { narrative_integrity: nation.narrative_integrity, violence_authority: nation.violence_authority, supply_level: nation.supply_level, sanity: nation.sanity };
+    const stats = { power: nation.power, supply: nation.supply, sanity: nation.sanity };
     let hadChange = false;
     let net = 0;
 
     for (const key of Object.keys(stats) as (keyof typeof stats)[]) {
       const diff = stats[key] - prev[key];
-      if (diff !== 0) {
-        hadChange = true;
-        // For narrative_integrity, going up is bad (closer to madness)
-        net += key === 'narrative_integrity' ? -diff : diff;
-      }
-      // Danger pulse: trigger once when entering <20 zone
-      if (key !== 'narrative_integrity' && stats[key] < 20 && prev[key] >= 20 && !dangerTriggered.current.has(key)) {
+      if (diff !== 0) { hadChange = true; net += diff; }
+      if (stats[key] < 20 && prev[key] >= 20 && !dangerTriggered.current.has(key)) {
         dangerTriggered.current.add(key);
         audioManager.playSfx('danger-pulse');
       }
       if (stats[key] >= 20) dangerTriggered.current.delete(key);
     }
 
-    if (hadChange) {
-      audioManager.playSfx(net >= 0 ? 'stat-up' : 'stat-down');
-    }
-
+    if (hadChange) audioManager.playSfx(net >= 0 ? 'stat-up' : 'stat-down');
     prevStats.current = stats;
-  }, [nation.narrative_integrity, nation.violence_authority, nation.supply_level, nation.sanity]);
+  }, [nation.power, nation.supply, nation.sanity]);
 
   const govLabel = GOVERNMENT_LABELS[nation.government_type] || '未知';
   const govDesc = GOVERNMENT_DESCRIPTIONS[nation.government_type] || '';
-  const activeBonuses = scapegoats.filter((sg) => !sg.sacrificed);
 
   return (
     <div className="panel p-3 h-full overflow-y-auto">
@@ -57,47 +42,31 @@ export function StatsPanel() {
       </div>
 
       <div className="text-xs text-dim mb-1 text-center font-mono">
-        第 {day} 天 | 人口: {nation.population}
+        纪元 {crisisState.era} | 人口: {nation.population} | 影响力: {influence}
+      </div>
+      <div className="text-xs text-center mb-1 font-mono text-gold">
+        总分: {crisisState.totalScore.toLocaleString()}
       </div>
       <div className="text-xs text-center mb-3">
         <span className="pill-tag bg-gold/15 text-gold">{govLabel}</span>
         {govDesc && <div className="text-[10px] text-dim mt-1">{govDesc}</div>}
       </div>
 
-      <ProgressBar label="叙事完整度" value={nation.narrative_integrity} color="blue" />
-      <ProgressBar label="暴力权威" value={nation.violence_authority} color="red" />
-      <ProgressBar label="给养储备" value={nation.supply_level} color="yellow" />
-      <ProgressBar label="理智度" value={nation.sanity} color="green" />
+      <ProgressBar label="权力" value={nation.power} color="red" />
+      <ProgressBar label="物资" value={nation.supply} color="yellow" />
+      <ProgressBar label="理智" value={nation.sanity} color="green" />
 
       <div className="mt-3 pt-2 border-t border-border">
-        <ProgressBar label="残暴值" value={nation.cruelty} color="magenta" />
-        <ProgressBar label="腐败值" value={nation.corruption} color="cyan" />
+        <ProgressBar label="暴虐" value={nation.tyranny} color="magenta" />
+        <ProgressBar label="神话浓度" value={nation.mythDensity} color="cyan" />
       </div>
-
-      {activeBonuses.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-border">
-          <div className="text-xs text-dim mb-1">每回合加成:</div>
-          <div className="flex flex-wrap gap-1">
-            {activeBonuses.map((sg) => (
-              <span key={sg.id} className="pill-tag bg-teal/15 text-teal text-[10px]">
-                {sg.bonus_description}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
 
       {nation.traits.length > 0 && (
         <div className="mt-3 pt-2 border-t border-border">
           <div className="text-xs text-dim mb-1">特质:</div>
           <div className="flex flex-wrap gap-1">
             {nation.traits.map((t) => (
-              <span
-                key={t}
-                className="pill-tag bg-purple/15 text-purple"
-              >
-                {t}
-              </span>
+              <span key={t} className="pill-tag bg-purple/15 text-purple">{t}</span>
             ))}
           </div>
         </div>
@@ -105,12 +74,9 @@ export function StatsPanel() {
 
       {nation.mythology.length > 0 && (
         <div className="mt-3 pt-2 border-t border-border">
-          <div className="text-xs text-dim mb-1">装备神话:</div>
+          <div className="text-xs text-dim mb-1">神话:</div>
           {nation.mythology.map((m) => (
-            <div
-              key={m.id}
-              className="text-xs text-gold mb-1 bg-gold/10 border border-gold/20 rounded-[var(--radius-sm)] p-1.5"
-            >
+            <div key={m.id} className="text-xs text-gold mb-1 bg-gold/10 border border-gold/20 rounded-[var(--radius-sm)] p-1.5">
               {m.name}
             </div>
           ))}

@@ -17,6 +17,9 @@ export interface CardsSlice {
   addCardToHand: (card: Card) => void;
   addCardToDeck: (card: Card) => void;
   discoverCard: (cardId: string) => boolean;  // returns true if newly discovered
+  returnAllToDeck: () => void;
+  discardCards: (cardIds: string[]) => void;
+  removeCard: (cardId: string) => void;
   loadCards: (deck: Card[], hand: Card[], discard: Card[]) => void;
   loadDiscovered: (discovered: string[]) => void;
   resetCards: () => void;
@@ -105,6 +108,32 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
     });
     return true;
   },
+
+  returnAllToDeck: () =>
+    set((s) => ({
+      deck: shuffleArray([...s.deck, ...s.hand, ...s.discard, ...s.selectedCards]),
+      hand: [],
+      discard: [],
+      selectedCards: [],
+    })),
+
+  discardCards: (cardIds) =>
+    set((s) => {
+      const idSet = new Set(cardIds);
+      const toDiscard = s.hand.filter((c) => idSet.has(c.id));
+      return {
+        hand: s.hand.filter((c) => !idSet.has(c.id)),
+        discard: [...s.discard, ...toDiscard],
+      };
+    }),
+
+  removeCard: (cardId) =>
+    set((s) => ({
+      deck: s.deck.filter((c) => c.id !== cardId),
+      hand: s.hand.filter((c) => c.id !== cardId),
+      discard: s.discard.filter((c) => c.id !== cardId),
+      selectedCards: s.selectedCards.filter((c) => c.id !== cardId),
+    })),
 
   loadCards: (deck, hand, discard) =>
     set({ deck, hand, discard, selectedCards: [] }),

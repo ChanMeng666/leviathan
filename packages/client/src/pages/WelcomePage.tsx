@@ -16,20 +16,22 @@ import { audioManager } from '../lib/audioManager';
 let sessionAudioUnlocked = false;
 
 export function WelcomePage() {
-  const day = useGameStore((s) => s.day);
+  const crisisState = useGameStore((s) => s.crisisState);
+  const phase = useGameStore((s) => s.phase);
   const setScreen = useGameStore((s) => s.setScreen);
   const resetNation = useGameStore((s) => s.resetNation);
   const resetCards = useGameStore((s) => s.resetCards);
   const resetEvents = useGameStore((s) => s.resetEvents);
   const resetGame = useGameStore((s) => s.resetGame);
   const resetNarratives = useGameStore((s) => s.resetNarratives);
+  const resetShop = useGameStore((s) => s.resetShop);
 
   const { user } = useAuth();
 
   const [showSaveManager, setShowSaveManager] = useState(false);
 
   const { play: sfx } = useSfx();
-  const hasSave = day > 0;
+  const hasSave = crisisState.era >= 1 && phase !== 'prologue';
 
   const [audioUnlocked, setAudioUnlocked] = useState(sessionAudioUnlocked);
 
@@ -48,6 +50,7 @@ export function WelcomePage() {
     resetCards();
     resetEvents();
     resetNarratives();
+    resetShop();
     resetGame();
     // resetGame sets screen to 'welcome', so override to 'game'
     setScreen('game');
@@ -125,7 +128,7 @@ export function WelcomePage() {
                   className="btn-secondary w-full text-sm py-3"
                   onClick={() => { sfx('btn-click'); handleContinue(); }}
                 >
-                  继续 — 第 {day} 天
+                  继续 — 纪元 {crisisState.era}
                 </button>
               )}
 

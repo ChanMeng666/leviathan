@@ -24,12 +24,11 @@ function nationContext(req: WeaveRequest): string {
 当前国家状态：
 - 国名: ${s.name}
 - 政体: ${govLabel}
-- 叙事完整度: ${s.narrative_integrity}/100
-- 暴力权威: ${s.violence_authority}/100
-- 给养储备: ${s.supply_level}/100
-- 理智度: ${s.sanity}/100
-- 残暴值: ${s.cruelty}/100
-- 腐败值: ${s.corruption}/100
+- 权力: ${s.power}/100
+- 物资: ${s.supply}/100
+- 理智: ${s.sanity}/100
+- 暴虐: ${s.tyranny}/100
+- 神话浓度: ${s.mythDensity}/100
 - 人口: ${s.population}
 - 特质: ${s.traits.length > 0 ? s.traits.join(', ') : '无'}
 
@@ -62,16 +61,19 @@ export function buildHistoryBookPrompt(req: HistoryBookRequest): string {
   const s = req.nation_state;
   const history = req.history_log.map((h, i) => `${i + 1}. ${h}`).join('\n');
   const govLabel = GOVERNMENT_LABELS[s.government_type as GovernmentType] || s.government_type;
-  const deathLabel = DEATH_REASON_LABELS[req.death_reason as GameOverReason] || req.death_reason;
+  const deathLabel = req.death_reason === 'victory'
+    ? '胜利'
+    : (DEATH_REASON_LABELS[req.death_reason as GameOverReason] || req.death_reason);
   return `${system}\n\n政治实体档案：
 - 国名: ${s.name}
 - 政体: ${govLabel}
 - 特质: ${s.traits.join(', ') || '无'}
 - 最终人口: ${s.population}
-- 残暴值: ${s.cruelty}
-- 腐败值: ${s.corruption}
-- 存活天数: ${req.days_survived}
-- 死因: ${deathLabel}
+- 暴虐: ${s.tyranny}
+- 神话浓度: ${s.mythDensity}
+- 存活纪元: ${req.eras_survived}
+- 总分: ${req.total_score.toLocaleString()}
+- 死因/结局: ${deathLabel}
 
 完整历史记录：
 ${history}\n${HISTORY_BOOK_PROMPT}`;

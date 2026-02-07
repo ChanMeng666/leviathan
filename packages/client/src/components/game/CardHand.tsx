@@ -12,9 +12,10 @@ const rarityColors: Record<string, { border: string; tag: string }> = {
 function CardItem({ card, onSelect }: { card: Card; onSelect: (c: Card) => void }) {
   const rarity = rarityColors[card.rarity] ?? rarityColors.common;
   const { play: sfx } = useSfx();
+  const enhanceClass = card.enhancement === 'foil' ? 'ring-1 ring-blue/40' : card.enhancement === 'holographic' ? 'ring-1 ring-gold/60' : '';
   return (
     <motion.button
-      className={`card-hover card-face border-2 ${rarity.border} p-3 text-left w-full`}
+      className={`card-hover card-face border-2 ${rarity.border} ${enhanceClass} p-3 text-left w-full`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={() => { sfx('card-select'); onSelect(card); }}
@@ -23,14 +24,17 @@ function CardItem({ card, onSelect }: { card: Card; onSelect: (c: Card) => void 
       <div className="text-xs text-[#5A6A52] mt-0.5 line-clamp-2">{card.description}</div>
       <div className="flex gap-1 mt-1.5 flex-wrap">
         {card.tags.map((t) => (
-          <span key={t} className="pill-tag bg-[#E0D8CC] text-[#5A6A52]">
-            {t}
-          </span>
+          <span key={t} className="pill-tag bg-[#E0D8CC] text-[#5A6A52]">{t}</span>
         ))}
       </div>
       <div className="flex justify-between text-[10px] text-[#7A8B6F] mt-1.5 font-mono">
         <span>物理:{card.physical_value}</span>
         <span>叙事:{card.narrative_potential}</span>
+        {card.enhancement && card.enhancement !== 'normal' && (
+          <span className={card.enhancement === 'foil' ? 'text-blue' : 'text-gold'}>
+            {card.enhancement === 'foil' ? '闪' : '全息'}
+          </span>
+        )}
       </div>
     </motion.button>
   );
@@ -43,7 +47,7 @@ export function CardHand() {
   const selectCard = useGameStore((s) => s.selectCard);
   const phase = useGameStore((s) => s.phase);
 
-  const canSelect = phase === 'action';
+  const canSelect = phase === 'weave';
 
   return (
     <div className="panel p-3 h-full flex flex-col">
@@ -59,17 +63,10 @@ export function CardHand() {
 
       <div className="flex-1 overflow-y-auto space-y-2 pr-1">
         {hand.length === 0 ? (
-          <div className="text-dim text-xs text-center py-8">
-            空空如也<br />
-            点击"下一天"抽取卡牌
-          </div>
+          <div className="text-dim text-xs text-center py-8">空空如也</div>
         ) : (
           hand.map((card) => (
-            <CardItem
-              key={card.id}
-              card={card}
-              onSelect={canSelect ? selectCard : () => {}}
-            />
+            <CardItem key={card.id} card={card} onSelect={canSelect ? selectCard : () => {}} />
           ))
         )}
       </div>

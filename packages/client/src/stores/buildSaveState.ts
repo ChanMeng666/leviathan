@@ -4,27 +4,26 @@ type SaveableState = GameSaveState & { selectedCards: Card[] };
 
 /**
  * Build a safe snapshot of game state for persistence.
- * - Merges selectedCards back into hand (selectedCards are transient)
- * - Normalizes event phase to action (activeEvent is transient)
- * - Normalizes prologue phase to draw (prologue is one-time)
+ * - Merges selectedCards back into hand
+ * - Normalizes transient phases
  */
 export function buildSaveState(state: SaveableState): GameSaveState {
   return {
     nation: state.nation,
     deck: state.deck,
-    hand: state.selectedCards.length > 0
+    hand: state.selectedCards?.length > 0
       ? [...state.hand, ...state.selectedCards]
       : state.hand,
     discard: state.discard,
-    day: state.day,
-    phase: state.phase === 'event' ? 'action' : state.phase === 'prologue' ? 'draw' : state.phase,
+    phase: state.phase === 'era_transition' ? 'crisis_start' : state.phase === 'prologue' ? 'crisis_start' : state.phase,
     gameOver: state.gameOver,
     gameOverReason: state.gameOverReason,
     eventHistory: state.eventHistory,
-    eventCooldowns: state.eventCooldowns,
     narrativeLog: state.narrativeLog,
-    scapegoats: state.scapegoats,
-    governmentAffinities: state.governmentAffinities,
-    discoveredExtended: state.discoveredExtended,
+    crisisState: state.crisisState,
+    influence: state.influence,
+    equippedDecrees: state.equippedDecrees,
+    consumables: state.consumables,
+    intentLevels: state.intentLevels,
   };
 }

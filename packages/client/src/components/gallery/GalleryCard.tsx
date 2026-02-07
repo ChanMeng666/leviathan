@@ -6,22 +6,31 @@ import type { GovernmentType } from '@leviathan/shared';
 const DEATH_LABELS: Record<string, string> = {
   riot: '暴乱覆灭',
   starvation: '饥荒亡国',
-  madness: '叙事过载',
   insanity: '精神崩溃',
 };
 
-const DEATH_COLORS: Record<string, string> = {
-  riot: 'border-red/60',
-  starvation: 'border-orange/60',
-  madness: 'border-purple/60',
-  insanity: 'border-teal/60',
+const VICTORY_LABELS: Record<string, string> = {
+  gold: '利维坦升天',
+  silver: '苟延残喘',
+  bronze: '惨胜',
 };
 
-const DEATH_TAG_COLORS: Record<string, string> = {
+const OUTCOME_COLORS: Record<string, string> = {
+  riot: 'border-red/60',
+  starvation: 'border-orange/60',
+  insanity: 'border-teal/60',
+  gold: 'border-gold/60',
+  silver: 'border-dim/60',
+  bronze: 'border-orange/60',
+};
+
+const OUTCOME_TAG_COLORS: Record<string, string> = {
   riot: 'bg-red/20 text-red',
   starvation: 'bg-orange/20 text-orange',
-  madness: 'bg-purple/20 text-purple',
   insanity: 'bg-teal/20 text-teal',
+  gold: 'bg-gold/20 text-gold',
+  silver: 'bg-dim/20 text-dim',
+  bronze: 'bg-orange/20 text-orange',
 };
 
 interface GalleryCardProps {
@@ -31,9 +40,12 @@ interface GalleryCardProps {
 }
 
 export function GalleryCard({ run, index, onClick }: GalleryCardProps) {
-  const deathLabel = DEATH_LABELS[run.deathReason] ?? '未知';
-  const borderColor = DEATH_COLORS[run.deathReason] ?? 'border-dim/40';
-  const tagColor = DEATH_TAG_COLORS[run.deathReason] ?? 'bg-dim/20 text-dim';
+  const outcomeKey = run.victoryType ?? run.deathReason ?? '';
+  const outcomeLabel = run.victoryType
+    ? VICTORY_LABELS[run.victoryType] ?? '胜利'
+    : DEATH_LABELS[run.deathReason ?? ''] ?? '未知';
+  const borderColor = OUTCOME_COLORS[outcomeKey] ?? 'border-dim/40';
+  const tagColor = OUTCOME_TAG_COLORS[outcomeKey] ?? 'bg-dim/20 text-dim';
   const govLabel = GOVERNMENT_LABELS[run.governmentType as GovernmentType] ?? '未知';
   const date = new Date(run.createdAt).toLocaleDateString('zh-CN', {
     year: 'numeric',
@@ -52,7 +64,7 @@ export function GalleryCard({ run, index, onClick }: GalleryCardProps) {
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="text-accent font-bold text-sm truncate flex-1">{run.nationName}</div>
         <span className={`pill-tag text-[10px] shrink-0 ${tagColor}`}>
-          {deathLabel}
+          {outcomeLabel}
         </span>
       </div>
 
@@ -63,11 +75,11 @@ export function GalleryCard({ run, index, onClick }: GalleryCardProps) {
       )}
 
       <div className="flex items-center gap-3 text-[10px] text-dim font-mono">
-        <span>第 {run.daysSurvived} 天</span>
+        <span>纪元 {run.erasSurvived}</span>
         <span className="text-fg/30">|</span>
         <span>{govLabel}</span>
         <span className="text-fg/30">|</span>
-        <span>人口 {run.finalPopulation}</span>
+        <span className="text-gold">{run.totalScore.toLocaleString()} 分</span>
       </div>
 
       <div className="text-[10px] text-dim/60 mt-2">{date}</div>

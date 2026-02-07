@@ -12,12 +12,11 @@ export interface WeaveRequest {
   intent: string;         // Player's chosen narrative intent
   nation_state: {
     name: string;
-    narrative_integrity: number;
-    violence_authority: number;
-    supply_level: number;
+    power: number;
+    supply: number;
     sanity: number;
-    cruelty: number;
-    corruption: number;
+    tyranny: number;
+    mythDensity: number;
     traits: string[];
     government_type: GovernmentType;
     population: number;
@@ -68,12 +67,13 @@ export interface HistoryBookRequest {
     traits: string[];
     government_type: GovernmentType;
     population: number;
-    cruelty: number;
-    corruption: number;
+    tyranny: number;
+    mythDensity: number;
   };
   history_log: string[];
   death_reason: string;
-  days_survived: number;
+  eras_survived: number;
+  total_score: number;
 }
 
 export interface HistoryBookResult {

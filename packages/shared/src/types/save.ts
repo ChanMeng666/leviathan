@@ -1,8 +1,8 @@
-import type { Card, NationState, GovernmentType, GamePhase, GameOverReason, ScapegoatGroup } from './game.js';
+import type { Card, NationState, GovernmentType, GamePhase, GameOverReason, CrisisState, Decree, Consumable, IntentLevel } from './game.js';
 
 export interface EventRecord {
   eventId: string;
-  day: number;
+  era: number;
   choiceId: string;
 }
 
@@ -15,33 +15,36 @@ export interface NarrativeEntry {
   timestamp: number;
 }
 
-/** Full game state for cloud save (matches Zustand partialize shape) */
+/** Full game state for cloud save */
 export interface GameSaveState {
   nation: NationState;
   deck: Card[];
   hand: Card[];
   discard: Card[];
-  day: number;
   phase: GamePhase;
   gameOver: boolean;
   gameOverReason: GameOverReason | null;
   eventHistory: EventRecord[];
-  eventCooldowns: Record<string, number>;
   narrativeLog: NarrativeEntry[];
-  // New feature state
-  scapegoats?: ScapegoatGroup[];
-  governmentAffinities?: Record<GovernmentType, number>;
-  discoveredExtended?: string[];
+  // New crisis system
+  crisisState: CrisisState;
+  // Shop state
+  influence: number;
+  equippedDecrees: Decree[];
+  consumables: Consumable[];
+  intentLevels: IntentLevel[];
 }
 
 /** Lightweight save listing for UI display */
 export interface GameSaveMeta {
   id: string;
   slotName: string;
-  day: number;
+  era: number;
+  crisisIndex: number;
   phase: GamePhase;
   gameOver: boolean;
   nationName: string;
+  totalScore: number;
   updatedAt: string;
 }
 
@@ -49,21 +52,21 @@ export interface GameSaveMeta {
 export interface GameRunRecord {
   id: string;
   nationName: string;
-  daysSurvived: number;
-  deathReason: string;
+  erasSurvived: number;
+  deathReason: string | null;
+  victoryType: string | null;
   governmentType: string;
+  totalScore: number;
   finalPopulation: number;
   epitaph: string | null;
   traits: string[] | null;
   mythology: { name: string; description: string }[] | null;
-  scapegoats: { id: string; name: string; sacrificed: boolean }[] | null;
   finalStats: {
-    narrative_integrity: number;
-    violence_authority: number;
-    supply_level: number;
+    power: number;
+    supply: number;
     sanity: number;
-    cruelty: number;
-    corruption: number;
+    tyranny: number;
+    mythDensity: number;
   } | null;
   historyBookTitle: string | null;
   historyBookBody: string | null;

@@ -2,6 +2,7 @@
 export type {
   GovernmentType,
   CardRarity,
+  CardEnhancement,
   Card,
   MythCard,
   NationState,
@@ -10,10 +11,21 @@ export type {
   GameEvent,
   GamePhase,
   GameOverReason,
+  CrisisType,
+  CrisisDefinition,
+  CrisisState,
+  ScoringStep,
+  ScoringBreakdown,
+  NarrativeIntent,
+  IntentLevel,
   ComboFormula,
   ScenarioChoice,
   Scenario,
   ScapegoatGroup,
+  DecreeRarity,
+  Decree,
+  Consumable,
+  BossModifier,
 } from './types/game.js';
 
 export type {
@@ -38,7 +50,7 @@ export type {
 
 // Constants
 export { INITIAL_CARDS, EXTENDED_CARDS, ALL_CARDS, getCardById } from './constants/cards.js';
-export { GAME_EVENTS, getEventById } from './constants/events.js';
+export { GAME_EVENTS, getEventById, getEraTransitionEvent } from './constants/events.js';
 export { COMBO_FORMULAS, findMatchingCombo } from './constants/combos.js';
 export { PROLOGUE_SCENARIO } from './constants/scenarios.js';
 export {
@@ -56,3 +68,11 @@ export {
   JUDGE_FORMAT_PROMPT,
   HISTORY_BOOK_PROMPT,
 } from './constants/prompts.js';
+export { ERAS, getCrisis, getEra, getNextCrisis, getCrisisReward } from './constants/eras.js';
+export { INTENTS, TAG_AFFINITIES, getIntentById, countTagMatches } from './constants/intents.js';
+export { calculateScore, applyComboBonus } from './constants/scoring.js';
+export type { ScoringInput } from './constants/scoring.js';
+export { DECREES, getDecreeById, getShopDecrees } from './constants/decrees.js';
+export { CONSUMABLES, getShopConsumables } from './constants/consumables.js';
+export { BOSS_MODIFIERS, getBossModifier } from './constants/bossModifiers.js';
+export { UNLOCK_CONDITIONS } from './constants/unlocks.js';

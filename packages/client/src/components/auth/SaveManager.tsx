@@ -12,7 +12,7 @@ interface SaveManagerProps {
 
 export function SaveManager({ open, onClose }: SaveManagerProps) {
   const user = useGameStore((s) => s.user);
-  const day = useGameStore((s) => s.day);
+  const crisisEra = useGameStore((s) => s.crisisState.era);
   const { saves, isLoading, fetchSaves, saveGame, loadSave, deleteSave } = useCloudSaves();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -39,7 +39,7 @@ export function SaveManager({ open, onClose }: SaveManagerProps) {
 
   const handleLoad = async (id: string) => {
     // If there's an active game, confirm before overwriting
-    if (day > 0) {
+    if (crisisEra >= 1) {
       setLoadConfirmId(id);
       return;
     }
