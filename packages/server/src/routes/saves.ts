@@ -169,32 +169,7 @@ router.post('/saves', async (req, res) => {
   }
 });
 
-// Delete a save
-router.delete('/saves/:id', async (req, res) => {
-  if (!isDbConfigured()) {
-    res.status(503).json({ error: '数据库未配置' });
-    return;
-  }
-  try {
-    const db = getDb();
-    const result = await db
-      .delete(gameSaves)
-      .where(and(eq(gameSaves.id, req.params.id), eq(gameSaves.userId, req.userId!)))
-      .returning({ id: gameSaves.id });
-
-    if (result.length === 0) {
-      res.status(404).json({ error: '存档不存在' });
-      return;
-    }
-
-    res.json({ deleted: true });
-  } catch (err) {
-    console.error('Failed to delete save:', err);
-    res.status(500).json({ error: '删除存档失败' });
-  }
-});
-
-// Record a completed game run
+// Record a completed game run (must be before :id routes)
 router.post('/saves/record-run', async (req, res) => {
   if (!isDbConfigured()) {
     res.status(503).json({ error: '数据库未配置' });
@@ -234,7 +209,7 @@ router.post('/saves/record-run', async (req, res) => {
   }
 });
 
-// Get user's past game runs
+// Get user's past game runs (must be before :id routes)
 router.get('/saves/runs', async (req, res) => {
   if (!isDbConfigured()) {
     res.status(503).json({ error: '数据库未配置' });
@@ -252,6 +227,31 @@ router.get('/saves/runs', async (req, res) => {
   } catch (err) {
     console.error('Failed to list runs:', err);
     res.status(500).json({ error: '加载游戏历史失败' });
+  }
+});
+
+// Delete a save
+router.delete('/saves/:id', async (req, res) => {
+  if (!isDbConfigured()) {
+    res.status(503).json({ error: '数据库未配置' });
+    return;
+  }
+  try {
+    const db = getDb();
+    const result = await db
+      .delete(gameSaves)
+      .where(and(eq(gameSaves.id, req.params.id), eq(gameSaves.userId, req.userId!)))
+      .returning({ id: gameSaves.id });
+
+    if (result.length === 0) {
+      res.status(404).json({ error: '存档不存在' });
+      return;
+    }
+
+    res.json({ deleted: true });
+  } catch (err) {
+    console.error('Failed to delete save:', err);
+    res.status(500).json({ error: '删除存档失败' });
   }
 });
 

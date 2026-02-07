@@ -41,10 +41,12 @@ export function EventDialog() {
     if (choice.new_card) {
       const card = getCardById(choice.new_card);
       if (card) {
-        // Track extended card discovery to prevent duplicate day-milestone discoveries
         const isExtended = EXTENDED_CARDS.some((c) => c.id === choice.new_card);
-        if (isExtended) discoverCard(choice.new_card);
-        addCardToHand(card);
+        if (isExtended) {
+          discoverCard(choice.new_card);  // tracks + adds to hand
+        } else {
+          addCardToHand(card);
+        }
       }
     }
 

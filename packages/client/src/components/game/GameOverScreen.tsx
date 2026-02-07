@@ -108,7 +108,9 @@ export function GameOverScreen() {
         apiFetch('/api/saves/record-run', {
           method: 'POST',
           body: JSON.stringify(payload),
-        }).catch(() => {});
+        }).then((res) => {
+          if (!res.ok) console.error('Record run failed:', res.status);
+        }).catch((err) => console.error('Record run error:', err));
       }
     };
 

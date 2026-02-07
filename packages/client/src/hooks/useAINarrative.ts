@@ -73,8 +73,8 @@ export function useAINarrative() {
         store.incrementAffinity('theocracy', 8);
       }
 
-      // Add new item if any
-      if (result.new_item) {
+      // Add new item if any (validate it's a proper Card with required fields)
+      if (result.new_item && result.new_item.id && result.new_item.rarity && result.new_item.name) {
         store.addCardToDeck(result.new_item);
       }
 

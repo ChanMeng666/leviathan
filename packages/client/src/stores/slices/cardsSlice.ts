@@ -101,7 +101,7 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
     if (!card) return false;
     set({
       discoveredExtended: [...s.discoveredExtended, cardId],
-      deck: [...s.deck, card],
+      hand: [...s.hand, card],
     });
     return true;
   },

@@ -10,7 +10,7 @@ const rarityColors: Record<string, { border: string; tag: string }> = {
 };
 
 function CardItem({ card, onSelect }: { card: Card; onSelect: (c: Card) => void }) {
-  const rarity = rarityColors[card.rarity];
+  const rarity = rarityColors[card.rarity] ?? rarityColors.common;
   const { play: sfx } = useSfx();
   return (
     <motion.button
