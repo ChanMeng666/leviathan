@@ -8,6 +8,8 @@ Leviathan (利维坦的诞生) is a political simulation card game built as a mo
 
 All UI text and game content is in Chinese (Simplified).
 
+**Vercel project name: `leviathan-client`** (scope: `chan-mengs-projects`). Always use `--project=leviathan-client` when running `vercel link`. The project called `leviathan` was deleted — do not recreate it.
+
 ## Commands
 
 ```bash
