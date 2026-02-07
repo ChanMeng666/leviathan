@@ -5,10 +5,8 @@ import { useGameStore } from '../stores';
 export function useAuth() {
   const user = useGameStore((s) => s.user);
   const isAuthLoading = useGameStore((s) => s.isAuthLoading);
-  const isGuest = useGameStore((s) => s.isGuest);
   const setUser = useGameStore((s) => s.setUser);
   const setIsAuthLoading = useGameStore((s) => s.setIsAuthLoading);
-  const setIsGuest = useGameStore((s) => s.setIsGuest);
   const clearAuth = useGameStore((s) => s.clearAuth);
 
   // Check session on mount
@@ -27,7 +25,7 @@ export function useAuth() {
           });
         }
       } catch {
-        // No session — stay as guest/unauthenticated
+        // No session — stay unauthenticated
       } finally {
         if (!cancelled) {
           setIsAuthLoading(false);
@@ -48,9 +46,8 @@ export function useAuth() {
         email: data.user.email,
         name: data.user.name ?? null,
       });
-      setIsGuest(false);
     }
-  }, [setUser, setIsGuest]);
+  }, [setUser]);
 
   const signUp = useCallback(async (email: string, password: string, name: string) => {
     const { data, error } = await authClient.signUp.email({ email, password, name });
@@ -61,9 +58,8 @@ export function useAuth() {
         email: data.user.email,
         name: data.user.name ?? null,
       });
-      setIsGuest(false);
     }
-  }, [setUser, setIsGuest]);
+  }, [setUser]);
 
   const signInWithGoogle = useCallback(async () => {
     await authClient.signIn.social({
@@ -77,19 +73,12 @@ export function useAuth() {
     clearAuth();
   }, [clearAuth]);
 
-  const enterGuestMode = useCallback(() => {
-    setIsGuest(true);
-    setIsAuthLoading(false);
-  }, [setIsGuest, setIsAuthLoading]);
-
   return {
     user,
-    isGuest,
     isAuthLoading,
     signIn,
     signUp,
     signInWithGoogle,
     signOut,
-    enterGuestMode,
   };
 }

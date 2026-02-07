@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypewriterText } from '../components/ui/TypewriterText';
 import { BalatroBackground } from '../components/ui/BalatroBackground';
-import { AuthModal } from '../components/auth/AuthModal';
+import { InlineAuthForm } from '../components/auth/InlineAuthForm';
 import { SaveManager } from '../components/auth/SaveManager';
 import { AudioSettingsButton } from '../components/ui/AudioSettings';
 import { InfoMenuButton } from '../components/ui/InfoMenuButton';
@@ -26,8 +26,6 @@ export function WelcomePage() {
 
   const { user } = useAuth();
 
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
   const [showSaveManager, setShowSaveManager] = useState(false);
 
   const { play: sfx } = useSfx();
@@ -58,27 +56,14 @@ export function WelcomePage() {
     setScreen('game');
   };
 
-  const openLogin = () => {
-    setAuthTab('login');
-    setShowAuthModal(true);
-  };
-
   return (
     <div className="h-screen w-screen flex items-center justify-center relative overflow-hidden">
       <BalatroBackground className="z-0" />
 
       {/* Top-right toolbar */}
       <div className="fixed top-4 right-4 z-20 flex items-center gap-2">
-        {user ? (
+        {user && (
           <UserMenu onOpenSaveManager={() => setShowSaveManager(true)} />
-        ) : (
-          <button
-            className="btn-secondary text-xs px-2 py-1"
-            onClick={openLogin}
-            title="登录以启用云存档"
-          >
-            登录
-          </button>
         )}
         <AudioSettingsButton direction="down" />
         <InfoMenuButton />
@@ -118,44 +103,42 @@ export function WelcomePage() {
           />
         </motion.div>
 
-        {/* Main buttons */}
+        {/* Main content: auth form or game buttons */}
         <motion.div
-          className="space-y-3"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          <button
-            className="btn-primary w-full text-sm py-3"
-            onClick={() => { sfx('btn-click'); handleNewGame(); }}
-          >
-            新游戏 — 发明一个民族
-          </button>
+          {user ? (
+            <div className="space-y-3">
+              <button
+                className="btn-primary w-full text-sm py-3"
+                onClick={() => { sfx('btn-click'); handleNewGame(); }}
+              >
+                新游戏 — 发明一个民族
+              </button>
 
-          {hasSave && (
-            <button
-              className="btn-secondary w-full text-sm py-3"
-              onClick={() => { sfx('btn-click'); handleContinue(); }}
-            >
-              继续 — 第 {day} 天
-            </button>
+              {hasSave && (
+                <button
+                  className="btn-secondary w-full text-sm py-3"
+                  onClick={() => { sfx('btn-click'); handleContinue(); }}
+                >
+                  继续 — 第 {day} 天
+                </button>
+              )}
+
+              <button
+                className="btn-secondary w-full text-sm py-3"
+                onClick={() => { sfx('btn-click'); setScreen('gallery'); }}
+              >
+                结局画廊
+              </button>
+            </div>
+          ) : (
+            <InlineAuthForm onSuccess={() => {}} />
           )}
-
-          <button
-            className="btn-secondary w-full text-sm py-3"
-            onClick={() => { sfx('btn-click'); setScreen('gallery'); }}
-          >
-            结局画廊
-          </button>
         </motion.div>
       </div>
-
-      {/* Auth modal */}
-      <AuthModal
-        open={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        initialTab={authTab}
-      />
 
       {/* Full save manager modal */}
       <SaveManager open={showSaveManager} onClose={() => setShowSaveManager(false)} />

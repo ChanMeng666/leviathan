@@ -109,19 +109,6 @@ export function GameOverScreen() {
           method: 'POST',
           body: JSON.stringify(payload),
         }).catch(() => {});
-      } else {
-        // Guest mode: save to localStorage
-        try {
-          const key = 'leviathan-gallery';
-          const existing: GameRunRecord[] = JSON.parse(localStorage.getItem(key) || '[]');
-          const record: GameRunRecord = {
-            ...payload,
-            id: crypto.randomUUID(),
-            createdAt: new Date().toISOString(),
-          };
-          existing.unshift(record);
-          localStorage.setItem(key, JSON.stringify(existing.slice(0, 20)));
-        } catch { /* ignore */ }
       }
     };
 

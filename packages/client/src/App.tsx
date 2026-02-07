@@ -8,7 +8,7 @@ import { BalatroBackground } from './components/ui/BalatroBackground';
 
 export default function App() {
   const screen = useGameStore((s) => s.screen);
-  const { isAuthLoading } = useAuth();
+  const { user, isAuthLoading } = useAuth();
   useBackgroundMusic();
 
   if (isAuthLoading) {
@@ -23,11 +23,12 @@ export default function App() {
     );
   }
 
-  if (screen === 'game') {
+  // Route guard: game and gallery require authentication
+  if (screen === 'game' && user) {
     return <GameScreen />;
   }
 
-  if (screen === 'gallery') {
+  if (screen === 'gallery' && user) {
     return <GalleryPage />;
   }
 
