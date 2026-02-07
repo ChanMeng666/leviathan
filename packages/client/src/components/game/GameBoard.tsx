@@ -6,6 +6,7 @@ import { NarrativeLoom } from './NarrativeLoom';
 import { NarrativeLog } from './NarrativeLog';
 import { EventDialog } from './EventDialog';
 import { GameOverScreen } from './GameOverScreen';
+import { PrologueScreen } from './PrologueScreen';
 import { ScapegoatWheel } from './ScapegoatWheel';
 import { HistoryBook } from './HistoryBook';
 import { UserMenu } from '../auth/UserMenu';
@@ -26,6 +27,7 @@ export function GameBoard() {
 
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
 
+  if (phase === 'prologue') return <PrologueScreen />;
   if (gameOver) return <GameOverScreen />;
 
   return (
@@ -119,6 +121,7 @@ export function GameBoard() {
 
 function PhaseIndicator({ phase }: { phase: string }) {
   const styles: Record<string, string> = {
+    prologue: 'bg-gold/20 text-gold',
     draw: 'bg-blue/20 text-blue',
     action: 'bg-teal/20 text-teal',
     event: 'bg-red/20 text-red',
@@ -126,6 +129,7 @@ function PhaseIndicator({ phase }: { phase: string }) {
     gameover: 'bg-red/20 text-red',
   };
   const labels: Record<string, string> = {
+    prologue: '序章',
     draw: '抽牌',
     action: '行动',
     event: '事件',

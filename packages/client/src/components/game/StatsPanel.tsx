@@ -1,9 +1,15 @@
 import { useGameStore } from '../../stores';
 import { ProgressBar } from '../ui/ProgressBar';
+import { GOVERNMENT_LABELS, GOVERNMENT_DESCRIPTIONS } from '@leviathan/shared';
 
 export function StatsPanel() {
   const nation = useGameStore((s) => s.nation);
   const day = useGameStore((s) => s.day);
+  const scapegoats = useGameStore((s) => s.scapegoats);
+
+  const govLabel = GOVERNMENT_LABELS[nation.government_type] || nation.government_type;
+  const govDesc = GOVERNMENT_DESCRIPTIONS[nation.government_type] || '';
+  const activeBonuses = scapegoats.filter((sg) => !sg.sacrificed);
 
   return (
     <div className="panel p-3 h-full overflow-y-auto">
@@ -11,8 +17,12 @@ export function StatsPanel() {
         {nation.name}
       </div>
 
-      <div className="text-xs text-dim mb-3 text-center font-mono">
-        第 {day} 天 | 人口: {nation.population} | {nation.government_type.toUpperCase()}
+      <div className="text-xs text-dim mb-1 text-center font-mono">
+        第 {day} 天 | 人口: {nation.population}
+      </div>
+      <div className="text-xs text-center mb-3">
+        <span className="pill-tag bg-gold/15 text-gold">{govLabel}</span>
+        {govDesc && <div className="text-[10px] text-dim mt-1">{govDesc}</div>}
       </div>
 
       <ProgressBar label="叙事完整度" value={nation.narrative_integrity} color="blue" />
@@ -24,6 +34,19 @@ export function StatsPanel() {
         <ProgressBar label="残暴值" value={nation.cruelty} color="magenta" />
         <ProgressBar label="腐败值" value={nation.corruption} color="cyan" />
       </div>
+
+      {activeBonuses.length > 0 && (
+        <div className="mt-3 pt-2 border-t border-border">
+          <div className="text-xs text-dim mb-1">每回合加成:</div>
+          <div className="flex flex-wrap gap-1">
+            {activeBonuses.map((sg) => (
+              <span key={sg.id} className="pill-tag bg-teal/15 text-teal text-[10px]">
+                {sg.bonus_description}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {nation.traits.length > 0 && (
         <div className="mt-3 pt-2 border-t border-border">

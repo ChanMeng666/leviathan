@@ -40,6 +40,13 @@ export type {
 export { INITIAL_CARDS, EXTENDED_CARDS, ALL_CARDS, getCardById } from './constants/cards.js';
 export { GAME_EVENTS, getEventById } from './constants/events.js';
 export { COMBO_FORMULAS, findMatchingCombo } from './constants/combos.js';
+export { PROLOGUE_SCENARIO } from './constants/scenarios.js';
+export {
+  GOVERNMENT_EFFECTS,
+  GOVERNMENT_LABELS,
+  GOVERNMENT_DESCRIPTIONS,
+  GOVERNMENT_AFFINITY_THRESHOLD,
+} from './constants/governments.js';
 export {
   SYSTEM_PROMPTS,
   WEAVE_FORMAT_PROMPT,

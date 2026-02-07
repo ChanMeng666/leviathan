@@ -78,6 +78,7 @@ export interface GameEvent {
 
 // ===== Game Phase =====
 export type GamePhase =
+  | 'prologue'    // Opening prologue (Day 0)
   | 'draw'        // Draw cards
   | 'action'      // Play cards / weave narratives
   | 'event'       // Resolve events

@@ -57,6 +57,9 @@ export function useCloudSaves() {
     store.loadEvents(data.eventHistory, data.eventCooldowns);
     store.loadGame(data.day, data.phase, data.gameOver, data.gameOverReason);
     store.loadNarratives(data.narrativeLog);
+    if (data.scapegoats) store.loadScapegoats(data.scapegoats);
+    if (data.governmentAffinities) store.loadAffinities(data.governmentAffinities);
+    if (data.discoveredExtended) store.loadDiscovered(data.discoveredExtended);
   }, []);
 
   const deleteSave = useCallback(async (id: string) => {

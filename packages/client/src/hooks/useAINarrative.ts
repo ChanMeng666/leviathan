@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useGameStore } from '../stores';
 import type { WeaveRequest, WeaveResult } from '@leviathan/shared';
-import { findMatchingCombo, getCardById } from '@leviathan/shared';
+import { findMatchingCombo, EXTENDED_CARDS } from '@leviathan/shared';
 import { apiFetch } from '../lib/api';
 
 export function useAINarrative() {
@@ -44,6 +44,20 @@ export function useAINarrative() {
       // Apply stat changes
       if (result.stats_change) {
         store.applyStatChanges(result.stats_change);
+
+        // Increment government affinities based on stat changes
+        if (result.stats_change.narrative_integrity && result.stats_change.narrative_integrity > 5) {
+          store.incrementAffinity('theocracy', 5);
+        }
+        if (result.stats_change.violence_authority && result.stats_change.violence_authority > 5) {
+          store.incrementAffinity('warlord', 5);
+        }
+        if (result.stats_change.corruption && result.stats_change.corruption > 5) {
+          store.incrementAffinity('bureaucracy', 5);
+        }
+        if (result.stats_change.supply_level && result.stats_change.supply_level > 5) {
+          store.incrementAffinity('tribal', 3);
+        }
       }
 
       // Check for combo
@@ -53,6 +67,8 @@ export function useAINarrative() {
         store.addHistoryEntry(
           `[Day ${day}] 合成成功: ${combo.name} — ${combo.description.slice(0, 50)}...`,
         );
+        // Combo creation boosts theocracy affinity
+        store.incrementAffinity('theocracy', 8);
       }
 
       // Add new item if any
@@ -80,6 +96,26 @@ export function useAINarrative() {
       if (result.contradiction) {
         store.applyStatChanges({ sanity: -10 });
         store.addHistoryEntry(`[Day ${day}] 矛盾警告: ${result.contradiction}`);
+      }
+
+      // Post-weave card discovery: 20% chance on high success rate
+      if (result.success_rate > 0.8 && Math.random() < 0.2) {
+        const undiscovered = EXTENDED_CARDS.filter(
+          (c) => !store.discoveredExtended.includes(c.id),
+        );
+        if (undiscovered.length > 0) {
+          const randomCard = undiscovered[Math.floor(Math.random() * undiscovered.length)];
+          const discovered = store.discoverCard(randomCard.id);
+          if (discovered) {
+            store.addNarrative({
+              day,
+              title: `意外发现: ${randomCard.name}`,
+              text: `纺织过程中，一件意想不到的素材出现在你的视野中——${randomCard.name}。${randomCard.description}`,
+              comment: `[发现] 高成功率纺织带来了意外收获！新卡牌已加入牌组`,
+            });
+            store.addHistoryEntry(`[Day ${day}] 纺织发现新素材: ${randomCard.name}`);
+          }
+        }
       }
     } catch (err) {
       console.error('Weave failed:', err);

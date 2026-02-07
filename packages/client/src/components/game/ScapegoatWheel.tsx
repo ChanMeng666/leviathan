@@ -4,37 +4,6 @@ import { Modal } from '../ui/Modal';
 import { useGameStore } from '../../stores';
 import type { ScapegoatGroup } from '@leviathan/shared';
 
-const SCAPEGOAT_GROUPS: ScapegoatGroup[] = [
-  {
-    id: 'sg_intellectuals',
-    name: '知识分子',
-    bonus_description: '+5 叙事完整度/回合',
-    stat_bonus: { narrative_integrity: 5 },
-    sacrificed: false,
-  },
-  {
-    id: 'sg_merchants',
-    name: '商人阶层',
-    bonus_description: '+5 给养/回合',
-    stat_bonus: { supply_level: 5 },
-    sacrificed: false,
-  },
-  {
-    id: 'sg_soldiers',
-    name: '老兵集团',
-    bonus_description: '+5 暴力权威/回合',
-    stat_bonus: { violence_authority: 5 },
-    sacrificed: false,
-  },
-  {
-    id: 'sg_priests',
-    name: '宗教人士',
-    bonus_description: '+5 理智/回合',
-    stat_bonus: { sanity: 5 },
-    sacrificed: false,
-  },
-];
-
 interface ScapegoatWheelProps {
   open: boolean;
   onClose: () => void;
@@ -44,20 +13,33 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
   const [spinning, setSpinning] = useState(false);
   const [selected, setSelected] = useState<ScapegoatGroup | null>(null);
   const nation = useGameStore((s) => s.nation);
+  const scapegoats = useGameStore((s) => s.scapegoats);
   const applyStatChanges = useGameStore((s) => s.applyStatChanges);
   const addTrait = useGameStore((s) => s.addTrait);
   const addHistoryEntry = useGameStore((s) => s.addHistoryEntry);
+  const sacrificeGroup = useGameStore((s) => s.sacrificeGroup);
+  const incrementAffinity = useGameStore((s) => s.incrementAffinity);
 
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
+  const availableGroups = scapegoats.filter((sg) => !sg.sacrificed);
 
   const handleSacrifice = (group: ScapegoatGroup) => {
     setSpinning(true);
     setSelected(group);
 
     setTimeout(() => {
-      applyStatChanges({ narrative_integrity: 20, violence_authority: 10, cruelty: 15 });
+      applyStatChanges({
+        narrative_integrity: 20,
+        violence_authority: 10,
+        cruelty: 15,
+        population: -100,
+      });
+      sacrificeGroup(group.id);
       addTrait(`清洗了${group.name}`);
-      addHistoryEntry(`[Day] 替罪羊轮盘: 清洗了${group.name}，不满归零。`);
+      addHistoryEntry(`[Day] 替罪羊轮盘: 清洗了${group.name}，永久失去其每回合加成。`);
+      // Scapegoat sacrifice boosts theocracy and warlord affinities
+      incrementAffinity('theocracy', 10);
+      incrementAffinity('warlord', 8);
       setSpinning(false);
       onClose();
     }, 1500);
@@ -85,18 +67,32 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
             <div className="text-gold mt-2">{selected.name} 正在被"重新安置"</div>
           )}
         </motion.div>
+      ) : availableGroups.length === 0 ? (
+        <div className="text-center py-8 text-dim text-sm">
+          所有群体都已被清洗。没有替罪羊了。
+          <br />
+          <span className="text-xs text-red/60">当你消灭了所有"敌人"，下一个敌人就是你自己。</span>
+        </div>
       ) : (
         <div className="space-y-2">
-          {SCAPEGOAT_GROUPS.map((group) => (
+          {scapegoats.map((group) => (
             <button
               key={group.id}
-              className="w-full card-face border-2 border-red/20 hover:border-red p-3 text-left transition-colors rounded-[var(--radius-card)]"
-              onClick={() => handleSacrifice(group)}
+              className={`w-full card-face border-2 p-3 text-left transition-colors rounded-[var(--radius-card)] ${
+                group.sacrificed
+                  ? 'border-dim/20 opacity-40 cursor-not-allowed'
+                  : 'border-red/20 hover:border-red'
+              }`}
+              onClick={() => !group.sacrificed && handleSacrifice(group)}
+              disabled={group.sacrificed}
             >
-              <div className="text-sm text-red font-bold">{group.name}</div>
+              <div className={`text-sm font-bold ${group.sacrificed ? 'text-dim line-through' : 'text-red'}`}>
+                {group.name}
+                {group.sacrificed && ' (已清洗)'}
+              </div>
               <div className="text-xs text-[#5A6A52]">{group.bonus_description}</div>
               <div className="text-[10px] text-orange mt-0.5">
-                清洗后将永久失去此加成
+                {group.sacrificed ? '已永久失去此加成' : '清洗后将永久失去此加成 | -100人口'}
               </div>
             </button>
           ))}

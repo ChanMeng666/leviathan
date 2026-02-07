@@ -1,5 +1,46 @@
 import type { StateCreator } from 'zustand';
-import type { GovernmentType, MythCard, NationStatChanges } from '@leviathan/shared';
+import type { GovernmentType, MythCard, NationStatChanges, ScapegoatGroup } from '@leviathan/shared';
+import { GOVERNMENT_AFFINITY_THRESHOLD } from '@leviathan/shared';
+
+const INITIAL_SCAPEGOATS: ScapegoatGroup[] = [
+  {
+    id: 'sg_intellectuals',
+    name: '知识分子',
+    bonus_description: '+5 叙事完整度/回合',
+    stat_bonus: { narrative_integrity: 5 },
+    sacrificed: false,
+  },
+  {
+    id: 'sg_merchants',
+    name: '商人阶层',
+    bonus_description: '+5 给养/回合',
+    stat_bonus: { supply_level: 5 },
+    sacrificed: false,
+  },
+  {
+    id: 'sg_soldiers',
+    name: '老兵集团',
+    bonus_description: '+5 暴力权威/回合',
+    stat_bonus: { violence_authority: 5 },
+    sacrificed: false,
+  },
+  {
+    id: 'sg_priests',
+    name: '宗教人士',
+    bonus_description: '+5 理智/回合',
+    stat_bonus: { sanity: 5 },
+    sacrificed: false,
+  },
+];
+
+const INITIAL_AFFINITIES: Record<GovernmentType, number> = {
+  undefined: 0,
+  theocracy: 0,
+  warlord: 0,
+  bureaucracy: 0,
+  tribal: 0,
+  fela: 0,
+};
 
 export interface NationSlice {
   nation: {
@@ -16,13 +57,21 @@ export interface NationSlice {
     population: number;
     history_log: string[];
   };
+  scapegoats: ScapegoatGroup[];
+  governmentAffinities: Record<GovernmentType, number>;
+  pendingGovTransition: GovernmentType | null;
   setNationName: (name: string) => void;
   applyStatChanges: (changes: Partial<NationStatChanges>) => void;
   addTrait: (trait: string) => void;
   addMythology: (myth: MythCard) => void;
   addHistoryEntry: (entry: string) => void;
   setGovernmentType: (type: GovernmentType) => void;
+  incrementAffinity: (type: GovernmentType, amount: number) => void;
+  consumeGovTransition: () => GovernmentType | null;
+  sacrificeGroup: (groupId: string) => void;
   loadNation: (nation: NationSlice['nation']) => void;
+  loadScapegoats: (scapegoats: ScapegoatGroup[]) => void;
+  loadAffinities: (affinities: Record<GovernmentType, number>) => void;
   resetNation: () => void;
 }
 
@@ -43,8 +92,11 @@ const initialNation: NationSlice['nation'] = {
   history_log: [],
 };
 
-export const createNationSlice: StateCreator<NationSlice, [], [], NationSlice> = (set) => ({
+export const createNationSlice: StateCreator<NationSlice, [], [], NationSlice> = (set, get) => ({
   nation: { ...initialNation },
+  scapegoats: INITIAL_SCAPEGOATS.map((s) => ({ ...s })),
+  governmentAffinities: { ...INITIAL_AFFINITIES },
+  pendingGovTransition: null,
 
   setNationName: (name) =>
     set((s) => ({ nation: { ...s.nation, name } })),
@@ -89,7 +141,65 @@ export const createNationSlice: StateCreator<NationSlice, [], [], NationSlice> =
   setGovernmentType: (type) =>
     set((s) => ({ nation: { ...s.nation, government_type: type } })),
 
+  incrementAffinity: (type, amount) =>
+    set((s) => {
+      const affinities = { ...s.governmentAffinities };
+      affinities[type] = clamp((affinities[type] || 0) + amount);
+
+      // Check if any affinity crossed the threshold for a government type change
+      let newGovType = s.nation.government_type;
+      let highestAffinity = 0;
+
+      for (const [govType, value] of Object.entries(affinities)) {
+        if (govType === 'undefined' || govType === 'fela') continue;
+        if (value >= GOVERNMENT_AFFINITY_THRESHOLD && value > highestAffinity) {
+          highestAffinity = value;
+          newGovType = govType as GovernmentType;
+        }
+      }
+
+      // Check fela condition: if all main stats are low
+      const n = s.nation;
+      if (n.narrative_integrity < 20 && n.violence_authority < 20 && n.supply_level < 20) {
+        newGovType = 'fela';
+      }
+
+      if (newGovType !== s.nation.government_type) {
+        return {
+          governmentAffinities: affinities,
+          nation: { ...s.nation, government_type: newGovType },
+          pendingGovTransition: newGovType,
+        };
+      }
+
+      return { governmentAffinities: affinities };
+    }),
+
+  consumeGovTransition: () => {
+    const transition = get().pendingGovTransition;
+    if (transition) {
+      set({ pendingGovTransition: null });
+    }
+    return transition;
+  },
+
+  sacrificeGroup: (groupId) =>
+    set((s) => ({
+      scapegoats: s.scapegoats.map((sg) =>
+        sg.id === groupId ? { ...sg, sacrificed: true } : sg,
+      ),
+    })),
+
   loadNation: (nation) => set({ nation }),
 
-  resetNation: () => set({ nation: { ...initialNation, mythology: [], traits: [], history_log: [] } }),
+  loadScapegoats: (scapegoats) => set({ scapegoats }),
+
+  loadAffinities: (affinities) => set({ governmentAffinities: affinities }),
+
+  resetNation: () =>
+    set({
+      nation: { ...initialNation, mythology: [], traits: [], history_log: [] },
+      scapegoats: INITIAL_SCAPEGOATS.map((s) => ({ ...s })),
+      governmentAffinities: { ...INITIAL_AFFINITIES },
+    }),
 });

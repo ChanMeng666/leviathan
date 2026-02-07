@@ -103,6 +103,79 @@ export const COMBO_FORMULAS: ComboFormula[] = [
       ],
     },
   },
+  // ===== 4 New Combos =====
+  {
+    id: 'combo_holy_suffering',
+    name: '苦修圣餐',
+    description:
+      '发霉的馒头不是贫穷的证据——它是神圣苦行的圣物。关公像前供奉着这颗长满绿毛的奇迹，信徒们含泪咀嚼，感受到了"神的味道"。饥饿从此有了宗教意义。',
+    required_cards: ['card_moldy_bun', 'card_plastic_guan_yu'],
+    result: {
+      id: 'myth_holy_suffering',
+      name: '苦修圣餐',
+      description: '神圣饥饿：将贫穷重新定义为信仰的考验。',
+      effect: {
+        narrative_integrity: 15,
+        supply_level: 5,
+        sanity: -10,
+      },
+      source_combo: ['card_moldy_bun', 'card_plastic_guan_yu'],
+    },
+  },
+  {
+    id: 'combo_spiritual_victory',
+    name: '精神胜利法',
+    description:
+      '半部史书上记载的每一次失败，经过大喇叭的重新诠释，都变成了"战略转进"。我们没有输——我们只是还没有赢。这种逻辑虽然疯狂，但无法反驳。',
+    required_cards: ['card_half_history', 'card_broken_speaker'],
+    result: {
+      id: 'myth_spiritual_victory',
+      name: '精神胜利法',
+      description: '修辞术：将任何失败重新定义为尚未完成的胜利。',
+      effect: {
+        narrative_integrity: 20,
+        violence_authority: -5,
+        sanity: -10,
+      },
+      source_combo: ['card_half_history', 'card_broken_speaker'],
+    },
+  },
+  {
+    id: 'combo_breathing_license',
+    name: '呼吸许可证',
+    description:
+      '萝卜公章盖在戴血眼镜的会计起草的表格上。从今天起，呼吸、行走、存在——每一项基本人权都需要盖章许可。税收从来没有这么简单过。',
+    required_cards: ['card_radish_stamps', 'card_bloody_glasses'],
+    result: {
+      id: 'myth_breathing_license',
+      name: '呼吸许可证',
+      description: '官僚极权：将存在本身变成需要许可的行为。',
+      effect: {
+        violence_authority: 10,
+        corruption: 15,
+        supply_level: 5,
+      },
+      source_combo: ['card_radish_stamps', 'card_bloody_glasses'],
+    },
+  },
+  {
+    id: 'combo_cyber_necromancy',
+    name: '赛博招魂术',
+    description:
+      '没有插线的红色电话机对准敌人保存完好的尸体。你拿起听筒，严肃地宣布："他说了，他死前最后的遗言是支持我们。"没人敢质疑死者的意愿——尤其是当死者"亲口"说出来的时候。',
+    required_cards: ['card_red_phone', 'card_enemy_corpse'],
+    result: {
+      id: 'myth_cyber_necromancy',
+      name: '赛博招魂术',
+      description: '亡灵代言：让死者为活人的权力背书。',
+      effect: {
+        violence_authority: 15,
+        narrative_integrity: 10,
+        sanity: -15,
+      },
+      source_combo: ['card_red_phone', 'card_enemy_corpse'],
+    },
+  },
 ];
 
 export function findMatchingCombo(cardIds: string[]): ComboFormula | undefined {

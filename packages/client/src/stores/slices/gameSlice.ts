@@ -44,7 +44,7 @@ export const createGameSlice: StateCreator<GameSlice, [], [], GameSlice> = (set)
   resetGame: () =>
     set({
       day: 0,
-      phase: 'draw',
+      phase: 'prologue',
       gameOver: false,
       gameOverReason: null,
       isWeaving: false,

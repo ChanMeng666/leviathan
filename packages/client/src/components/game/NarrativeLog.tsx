@@ -28,12 +28,13 @@ export function NarrativeLog() {
         ) : (
           narrativeLog.map((entry, idx) => {
             const isLatest = currentNarrative?.id === entry.id && idx === narrativeLog.length - 1;
+            const isDiscovery = entry.comment?.includes('[发现]');
             return (
-              <div key={entry.id} className="border-l-2 border-accent/40 pl-2">
+              <div key={entry.id} className={`border-l-2 pl-2 ${isDiscovery ? 'border-gold' : 'border-accent/40'}`}>
                 <div className="text-xs text-dim font-mono">
                   第 {entry.day} 天
                 </div>
-                <div className="text-sm text-gold font-bold">{entry.title}</div>
+                <div className={`text-sm font-bold ${isDiscovery ? 'text-gold' : 'text-gold'}`}>{entry.title}</div>
                 <div className="text-xs text-fg mt-0.5">
                   {isLatest ? (
                     <TypewriterText text={entry.text} speed={20} />
@@ -41,7 +42,7 @@ export function NarrativeLog() {
                     entry.text
                   )}
                 </div>
-                <div className="text-xs text-teal mt-1 italic">{entry.comment}</div>
+                <div className={`text-xs mt-1 italic ${isDiscovery ? 'text-gold' : 'text-teal'}`}>{entry.comment}</div>
               </div>
             );
           })

@@ -81,6 +81,9 @@ router.get('/saves/:id', async (req, res) => {
       eventHistory: save.eventHistory,
       eventCooldowns: save.eventCooldowns,
       narrativeLog: save.narrativeLog,
+      scapegoats: save.scapegoats,
+      governmentAffinities: save.governmentAffinities,
+      discoveredExtended: save.discoveredExtended,
     });
   } catch (err) {
     console.error('Failed to load save:', err);
@@ -95,7 +98,7 @@ router.post('/saves', async (req, res) => {
     return;
   }
   try {
-    const { slotName, nation, deck, hand, discard, day, phase, gameOver, gameOverReason, eventHistory, eventCooldowns, narrativeLog } = req.body;
+    const { slotName, nation, deck, hand, discard, day, phase, gameOver, gameOverReason, eventHistory, eventCooldowns, narrativeLog, scapegoats, governmentAffinities, discoveredExtended } = req.body;
 
     if (!slotName) {
       res.status(400).json({ error: '缺少存档槽名称' });
@@ -126,6 +129,9 @@ router.post('/saves', async (req, res) => {
           eventHistory,
           eventCooldowns,
           narrativeLog,
+          scapegoats: scapegoats ?? null,
+          governmentAffinities: governmentAffinities ?? null,
+          discoveredExtended: discoveredExtended ?? null,
           updatedAt: new Date(),
         } as Partial<typeof gameSaves.$inferInsert>)
         .where(eq(gameSaves.id, existing.id));
@@ -149,6 +155,9 @@ router.post('/saves', async (req, res) => {
           eventHistory,
           eventCooldowns,
           narrativeLog,
+          scapegoats: scapegoats ?? null,
+          governmentAffinities: governmentAffinities ?? null,
+          discoveredExtended: discoveredExtended ?? null,
         } as typeof gameSaves.$inferInsert)
         .returning({ id: gameSaves.id });
 

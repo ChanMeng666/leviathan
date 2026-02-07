@@ -1,4 +1,4 @@
-import type { Card, NationState, GamePhase, GameOverReason } from './game.js';
+import type { Card, NationState, GovernmentType, GamePhase, GameOverReason, ScapegoatGroup } from './game.js';
 
 export interface EventRecord {
   eventId: string;
@@ -28,6 +28,10 @@ export interface GameSaveState {
   eventHistory: EventRecord[];
   eventCooldowns: Record<string, number>;
   narrativeLog: NarrativeEntry[];
+  // New feature state
+  scapegoats?: ScapegoatGroup[];
+  governmentAffinities?: Record<GovernmentType, number>;
+  discoveredExtended?: string[];
 }
 
 /** Lightweight save listing for UI display */

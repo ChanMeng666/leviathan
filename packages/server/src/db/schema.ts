@@ -15,6 +15,9 @@ export const gameSaves = pgTable('game_saves', {
   eventHistory: jsonb('event_history').notNull(),
   eventCooldowns: jsonb('event_cooldowns').notNull(),
   narrativeLog: jsonb('narrative_log').notNull(),
+  scapegoats: jsonb('scapegoats'),
+  governmentAffinities: jsonb('government_affinities'),
+  discoveredExtended: jsonb('discovered_extended'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => [

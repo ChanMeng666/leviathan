@@ -1,12 +1,13 @@
 import type { StateCreator } from 'zustand';
 import type { Card } from '@leviathan/shared';
-import { INITIAL_CARDS } from '@leviathan/shared';
+import { INITIAL_CARDS, EXTENDED_CARDS, getCardById } from '@leviathan/shared';
 
 export interface CardsSlice {
   deck: Card[];        // Draw pile
   hand: Card[];        // Current hand
   discard: Card[];     // Used cards
   selectedCards: Card[]; // Cards selected for the loom
+  discoveredExtended: string[];  // IDs of discovered extended cards
 
   drawCards: (n: number) => void;
   selectCard: (card: Card) => void;
@@ -15,7 +16,9 @@ export interface CardsSlice {
   discardSelected: () => void;
   addCardToHand: (card: Card) => void;
   addCardToDeck: (card: Card) => void;
+  discoverCard: (cardId: string) => boolean;  // returns true if newly discovered
   loadCards: (deck: Card[], hand: Card[], discard: Card[]) => void;
+  loadDiscovered: (discovered: string[]) => void;
   resetCards: () => void;
 }
 
@@ -28,11 +31,12 @@ function shuffleArray<T>(arr: T[]): T[] {
   return a;
 }
 
-export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (set) => ({
+export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (set, get) => ({
   deck: shuffleArray(INITIAL_CARDS),
   hand: [],
   discard: [],
   selectedCards: [],
+  discoveredExtended: [],
 
   drawCards: (n) =>
     set((s) => {
@@ -90,8 +94,23 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
   addCardToDeck: (card) =>
     set((s) => ({ deck: [...s.deck, card] })),
 
+  discoverCard: (cardId) => {
+    const s = get();
+    if (s.discoveredExtended.includes(cardId)) return false;
+    const card = getCardById(cardId);
+    if (!card) return false;
+    set({
+      discoveredExtended: [...s.discoveredExtended, cardId],
+      deck: [...s.deck, card],
+    });
+    return true;
+  },
+
   loadCards: (deck, hand, discard) =>
     set({ deck, hand, discard, selectedCards: [] }),
+
+  loadDiscovered: (discovered) =>
+    set({ discoveredExtended: discovered }),
 
   resetCards: () =>
     set({
@@ -99,5 +118,6 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
       hand: [],
       discard: [],
       selectedCards: [],
+      discoveredExtended: [],
     }),
 });

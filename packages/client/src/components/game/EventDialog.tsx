@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { Modal } from '../ui/Modal';
 import { useGameStore } from '../../stores';
-import { getCardById } from '@leviathan/shared';
+import { getCardById, EXTENDED_CARDS } from '@leviathan/shared';
 import type { EventChoice } from '@leviathan/shared';
 
 const STAT_NAMES: Record<string, string> = {
@@ -22,6 +22,8 @@ export function EventDialog() {
   const addTrait = useGameStore((s) => s.addTrait);
   const addHistoryEntry = useGameStore((s) => s.addHistoryEntry);
   const addCardToHand = useGameStore((s) => s.addCardToHand);
+  const discoverCard = useGameStore((s) => s.discoverCard);
+  const incrementAffinity = useGameStore((s) => s.incrementAffinity);
   const day = useGameStore((s) => s.day);
   const setPhase = useGameStore((s) => s.setPhase);
 
@@ -32,8 +34,24 @@ export function EventDialog() {
     if (choice.new_trait) addTrait(choice.new_trait);
     if (choice.new_card) {
       const card = getCardById(choice.new_card);
-      if (card) addCardToHand(card);
+      if (card) {
+        // Track extended card discovery to prevent duplicate day-milestone discoveries
+        const isExtended = EXTENDED_CARDS.some((c) => c.id === choice.new_card);
+        if (isExtended) discoverCard(choice.new_card);
+        addCardToHand(card);
+      }
     }
+
+    // Increment government affinities based on event choice effects
+    if (choice.effect.violence_authority && choice.effect.violence_authority > 5)
+      incrementAffinity('warlord', 5);
+    if (choice.effect.cruelty && choice.effect.cruelty > 10)
+      incrementAffinity('warlord', 3);
+    if (choice.effect.narrative_integrity && choice.effect.narrative_integrity > 5)
+      incrementAffinity('theocracy', 5);
+    if (choice.effect.corruption && choice.effect.corruption > 5)
+      incrementAffinity('bureaucracy', 5);
+
     addHistoryEntry(`[Day ${day}] 事件「${activeEvent.title}」: 选择了「${choice.label}」`);
     resolveEvent(activeEvent.id, choice.id, day);
     setPhase('action');
