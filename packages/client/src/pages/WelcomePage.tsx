@@ -43,6 +43,7 @@ export function WelcomePage() {
   }, []);
 
   const handleNewGame = () => {
+    if (!user) return;
     resetNation();
     resetCards();
     resetEvents();
@@ -53,6 +54,7 @@ export function WelcomePage() {
   };
 
   const handleContinue = () => {
+    if (!user) return;
     setScreen('game');
   };
 
@@ -129,7 +131,7 @@ export function WelcomePage() {
 
               <button
                 className="btn-secondary w-full text-sm py-3"
-                onClick={() => { sfx('btn-click'); setScreen('gallery'); }}
+                onClick={() => { if (!user) return; sfx('btn-click'); setScreen('gallery'); }}
               >
                 结局画廊
               </button>

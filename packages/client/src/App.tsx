@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useGameStore } from './stores';
 import { useAuth } from './hooks/useAuth';
 import { useBackgroundMusic } from './hooks/useAudio';
@@ -8,8 +9,21 @@ import { BalatroBackground } from './components/ui/BalatroBackground';
 
 export default function App() {
   const screen = useGameStore((s) => s.screen);
-  const { user, isAuthLoading } = useAuth();
+  const setScreen = useGameStore((s) => s.setScreen);
+  const { user, isAuthLoading, checkSession } = useAuth();
   useBackgroundMusic();
+
+  // Check session once on mount
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
+
+  // Reset to welcome screen if user loses auth while on a protected screen
+  useEffect(() => {
+    if (!isAuthLoading && !user && screen !== 'welcome') {
+      setScreen('welcome');
+    }
+  }, [isAuthLoading, user, screen, setScreen]);
 
   if (isAuthLoading) {
     return (
@@ -24,12 +38,9 @@ export default function App() {
   }
 
   // Route guard: game and gallery require authentication
-  if (screen === 'game' && user) {
-    return <GameScreen />;
-  }
-
-  if (screen === 'gallery' && user) {
-    return <GalleryPage />;
+  if (user) {
+    if (screen === 'game') return <GameScreen />;
+    if (screen === 'gallery') return <GalleryPage />;
   }
 
   return <WelcomePage />;

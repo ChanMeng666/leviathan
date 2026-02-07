@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
 import { authClient } from '../auth';
 import { useGameStore } from '../stores';
 
@@ -9,33 +9,24 @@ export function useAuth() {
   const setIsAuthLoading = useGameStore((s) => s.setIsAuthLoading);
   const clearAuth = useGameStore((s) => s.clearAuth);
 
-  // Check session on mount
-  useEffect(() => {
-    let cancelled = false;
-
-    async function checkSession() {
-      try {
-        const { data } = await authClient.getSession();
-        if (cancelled) return;
-        if (data?.user) {
-          setUser({
-            id: data.user.id,
-            email: data.user.email,
-            name: data.user.name ?? null,
-          });
-        }
-      } catch {
-        // No session — stay unauthenticated
-      } finally {
-        if (!cancelled) {
-          setIsAuthLoading(false);
-        }
+  const checkSession = useCallback(async () => {
+    try {
+      const { data } = await authClient.getSession();
+      if (data?.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email,
+          name: data.user.name ?? null,
+        });
+      } else {
+        clearAuth();
       }
+    } catch {
+      clearAuth();
+    } finally {
+      setIsAuthLoading(false);
     }
-
-    checkSession();
-    return () => { cancelled = true; };
-  }, [setUser, setIsAuthLoading]);
+  }, [setUser, setIsAuthLoading, clearAuth]);
 
   const signIn = useCallback(async (email: string, password: string) => {
     const { data, error } = await authClient.signIn.email({ email, password });
@@ -76,6 +67,7 @@ export function useAuth() {
   return {
     user,
     isAuthLoading,
+    checkSession,
     signIn,
     signUp,
     signInWithGoogle,
