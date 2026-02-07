@@ -12,6 +12,7 @@ import { CrisisEndScreen } from './CrisisEndScreen';
 import { ShopScreen } from './ShopScreen';
 import { VictoryScreen } from './VictoryScreen';
 import { DecreeBar } from './DecreeBar';
+import { ScoreDisplay } from './ScoreDisplay';
 import { HistoryBook } from './HistoryBook';
 import { UserMenu } from '../auth/UserMenu';
 import { SaveManager } from '../auth/SaveManager';
@@ -118,6 +119,9 @@ export function GameBoard() {
           </button>
         </div>
       </div>
+
+      {/* Score cascade animation */}
+      <ScoreDisplay />
 
       {/* Event overlay for era_transition */}
       <EventDialog onResolve={afterEraTransition} />

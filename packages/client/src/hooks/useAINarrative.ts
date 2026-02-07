@@ -86,7 +86,7 @@ export function useAINarrative() {
       store.addRoundScore(breakdown.finalScore);
 
       // Set pending score animation
-      store.setPendingScoreAnimation({ finalScore: breakdown.finalScore });
+      store.setPendingScoreAnimation(breakdown);
 
       // Also call the server for narrative text
       const request: WeaveRequest = {

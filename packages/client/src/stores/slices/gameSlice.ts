@@ -1,5 +1,5 @@
 import type { StateCreator } from 'zustand';
-import type { GamePhase, GameOverReason, CrisisState } from '@leviathan/shared';
+import type { GamePhase, GameOverReason, CrisisState, ScoringBreakdown } from '@leviathan/shared';
 import { getCrisis } from '@leviathan/shared';
 
 export type Screen = 'welcome' | 'game' | 'gallery';
@@ -25,7 +25,7 @@ export interface GameSlice {
   gameOverReason: GameOverReason | null;
   isWeaving: boolean;
   screen: Screen;
-  pendingScoreAnimation: null | { finalScore: number };
+  pendingScoreAnimation: ScoringBreakdown | null;
 
   setPhase: (phase: GamePhase) => void;
   setCrisisState: (crisis: Partial<CrisisState>) => void;
@@ -36,7 +36,7 @@ export interface GameSlice {
   setGameOver: (reason: GameOverReason) => void;
   setIsWeaving: (v: boolean) => void;
   setScreen: (s: Screen) => void;
-  setPendingScoreAnimation: (anim: { finalScore: number } | null) => void;
+  setPendingScoreAnimation: (anim: ScoringBreakdown | null) => void;
   loadGame: (phase: GamePhase, crisis: CrisisState, gameOver: boolean, gameOverReason: GameOverReason | null) => void;
   resetGame: () => void;
 }
