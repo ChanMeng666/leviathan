@@ -39,7 +39,7 @@ export function GalleryPage() {
           >
             结局画廊
           </h1>
-          <div className="w-12" /> {/* spacer for centering */}
+          <AudioSettingsButton direction="down" />
         </motion.div>
 
         {/* Grid */}
@@ -51,15 +51,6 @@ export function GalleryPage() {
           <GalleryGrid runs={runs} isLoading={isLoading} />
         </motion.div>
 
-        {/* Footer */}
-        <motion.div
-          className="mt-8 flex justify-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-        >
-          <AudioSettingsButton direction="up" />
-        </motion.div>
       </div>
     </div>
   );

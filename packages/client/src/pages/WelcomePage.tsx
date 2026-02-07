@@ -106,6 +106,11 @@ export function WelcomePage() {
     <div className="min-h-screen flex items-center justify-center relative overflow-y-auto">
       <BalatroBackground className="z-0" />
 
+      {/* Top-right audio settings */}
+      <div className="fixed top-4 right-4 z-20">
+        <AudioSettingsButton direction="down" />
+      </div>
+
       <div className="relative z-10 max-w-lg w-full text-center px-4 py-8">
         {/* Title */}
         <motion.div
@@ -244,9 +249,6 @@ export function WelcomePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 2.2 }}
         >
-          <div className="flex items-center justify-center gap-3 mb-2">
-            <AudioSettingsButton direction="up" />
-          </div>
           "任何叙事都能构建——历史、民族、国家皆可被发明"
           <br />
           <span className="text-fg/25">v0.1.0</span>
