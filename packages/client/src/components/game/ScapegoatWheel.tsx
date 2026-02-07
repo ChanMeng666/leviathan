@@ -14,6 +14,7 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
   const [spinning, setSpinning] = useState(false);
   const [selected, setSelected] = useState<ScapegoatGroup | null>(null);
   const nation = useGameStore((s) => s.nation);
+  const day = useGameStore((s) => s.day);
   const scapegoats = useGameStore((s) => s.scapegoats);
   const applyStatChanges = useGameStore((s) => s.applyStatChanges);
   const addTrait = useGameStore((s) => s.addTrait);
@@ -40,7 +41,7 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
       });
       sacrificeGroup(group.id);
       addTrait(`清洗了${group.name}`);
-      addHistoryEntry(`[Day] 替罪羊轮盘: 清洗了${group.name}，永久失去其每回合加成。`);
+      addHistoryEntry(`[第${day}天] 替罪羊轮盘: 清洗了${group.name}，永久失去其每回合加成。`);
       // Scapegoat sacrifice boosts theocracy and warlord affinities
       incrementAffinity('theocracy', 10);
       incrementAffinity('warlord', 8);

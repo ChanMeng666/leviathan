@@ -47,7 +47,7 @@ export function useGameLoop() {
       nationAfterEntropy.government_type !== 'fela'
     ) {
       store.setGovernmentType('fela');
-      store.addHistoryEntry(`[Day ${newDay}] 政体蜕变: 费拉不堪 — 一切都在崩溃`);
+      store.addHistoryEntry(`[第${newDay}天] 政体蜕变: 费拉不堪 — 一切都在崩溃`);
       store.addNarrative({
         day: newDay,
         title: '费拉不堪',
@@ -67,7 +67,7 @@ export function useGameLoop() {
         text: `你的一系列决策正在重塑这个政权的本质。人们开始用新的方式谈论你的统治——"${govLabel}"。这不仅仅是称呼的改变，权力的运作方式正在发生根本性的变化。`,
         comment: `[政体] 政府类型变更为「${govLabel}」，每日熵变效果已更新`,
       });
-      store.addHistoryEntry(`[Day ${newDay}] 政体演变: ${govLabel}`);
+      store.addHistoryEntry(`[第${newDay}天] 政体演变: ${govLabel}`);
     }
 
     // Check death conditions AFTER entropy
@@ -94,7 +94,7 @@ export function useGameLoop() {
             text: `搜索队在废墟中发现了一件新的素材——${randomCard.name}。${randomCard.description}`,
             comment: `[发现] 新卡牌已加入牌组`,
           });
-          store.addHistoryEntry(`[Day ${newDay}] 发现新素材: ${randomCard.name}`);
+          store.addHistoryEntry(`[第${newDay}天] 发现新素材: ${randomCard.name}`);
         }
       }
     }

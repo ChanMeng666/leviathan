@@ -67,7 +67,7 @@ export function useAINarrative() {
         audioManager.playSfx('combo-acquire');
         store.addMythology(combo.result);
         store.addHistoryEntry(
-          `[Day ${day}] 合成成功: ${combo.name} — ${combo.description.slice(0, 50)}...`,
+          `[第${day}天] 合成成功: ${combo.name} — ${combo.description.slice(0, 50)}...`,
         );
         // Combo creation boosts theocracy affinity
         store.incrementAffinity('theocracy', 8);
@@ -92,13 +92,13 @@ export function useAINarrative() {
 
       // Add to history log
       store.addHistoryEntry(
-        `[Day ${day}] 纺织: "${intent}" → ${result.title} (成功率: ${Math.round(result.success_rate * 100)}%)`,
+        `[第${day}天] 纺织: "${intent}" → ${result.title} (成功率: ${Math.round(result.success_rate * 100)}%)`,
       );
 
       // Handle contradiction
       if (result.contradiction) {
         store.applyStatChanges({ sanity: -10 });
-        store.addHistoryEntry(`[Day ${day}] 矛盾警告: ${result.contradiction}`);
+        store.addHistoryEntry(`[第${day}天] 矛盾警告: ${result.contradiction}`);
       }
 
       // Post-weave card discovery: 20% chance on high success rate
@@ -117,7 +117,7 @@ export function useAINarrative() {
               text: `纺织过程中，一件意想不到的素材出现在你的视野中——${randomCard.name}。${randomCard.description}`,
               comment: `[发现] 高成功率纺织带来了意外收获！新卡牌已加入牌组`,
             });
-            store.addHistoryEntry(`[Day ${day}] 纺织发现新素材: ${randomCard.name}`);
+            store.addHistoryEntry(`[第${day}天] 纺织发现新素材: ${randomCard.name}`);
           }
         }
       }

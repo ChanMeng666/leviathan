@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { GameOverReason, HistoryBookResult } from '@leviathan/shared';
+import { GOVERNMENT_LABELS } from '@leviathan/shared';
 import { useGameStore } from '../../stores';
 import { TypewriterText } from '../ui/TypewriterText';
 import { BalatroBackground } from '../ui/BalatroBackground';
@@ -132,7 +133,7 @@ export function GameOverScreen() {
         </div>
 
         <div className="text-dim text-xs mb-6 font-mono">
-          存活天数: {day} | 最终人口: {nation.population} | 政体: {nation.government_type.toUpperCase()}
+          存活天数: {day} | 最终人口: {nation.population} | 政体: {GOVERNMENT_LABELS[nation.government_type] || nation.government_type}
         </div>
 
         {/* History Book */}

@@ -66,7 +66,7 @@ export function EventDialog() {
     if (choice.effect.corruption && choice.effect.corruption > 5)
       incrementAffinity('bureaucracy', 5);
 
-    addHistoryEntry(`[Day ${day}] 事件「${activeEvent.title}」: 选择了「${choice.label}」`);
+    addHistoryEntry(`[第${day}天] 事件「${activeEvent.title}」: 选择了「${choice.label}」`);
     resolveEvent(activeEvent.id, choice.id, day);
     sfx('event-resolve');
     setPhase('action');

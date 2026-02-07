@@ -73,7 +73,7 @@ export function PrologueScreen() {
     }
 
     // Log the choice
-    addHistoryEntry(`[Day 0] 开国路径: ${choice.label}`);
+    addHistoryEntry(`[第0天] 开国路径: ${choice.label}`);
     addNarrative({
       day: 0,
       title: scenario.title,
