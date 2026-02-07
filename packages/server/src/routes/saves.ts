@@ -127,7 +127,7 @@ router.post('/saves', async (req, res) => {
           eventCooldowns,
           narrativeLog,
           updatedAt: new Date(),
-        } as typeof gameSaves.$inferInsert)
+        } as Partial<typeof gameSaves.$inferInsert>)
         .where(eq(gameSaves.id, existing.id));
 
       res.json({ id: existing.id, updated: true });
