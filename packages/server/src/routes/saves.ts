@@ -127,7 +127,7 @@ router.post('/saves', async (req, res) => {
           eventCooldowns,
           narrativeLog,
           updatedAt: new Date(),
-        })
+        } as typeof gameSaves.$inferInsert)
         .where(eq(gameSaves.id, existing.id));
 
       res.json({ id: existing.id, updated: true });
@@ -149,7 +149,7 @@ router.post('/saves', async (req, res) => {
           eventHistory,
           eventCooldowns,
           narrativeLog,
-        })
+        } as typeof gameSaves.$inferInsert)
         .returning({ id: gameSaves.id });
 
       res.status(201).json({ id: inserted.id, updated: false });
@@ -205,7 +205,7 @@ router.post('/saves/record-run', async (req, res) => {
         governmentType,
         finalPopulation,
         epitaph: epitaph ?? null,
-      })
+      } as typeof gameRuns.$inferInsert)
       .returning({ id: gameRuns.id });
 
     res.status(201).json({ id: run.id });
