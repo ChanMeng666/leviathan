@@ -16,7 +16,7 @@ router.post('/weave', async (req, res) => {
       return;
     }
 
-    const ai = getAIProvider();
+    const ai = await getAIProvider();
 
     // Mock mode
     if (!ai) {

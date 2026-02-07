@@ -2,8 +2,9 @@ import type { LanguageModelV1 } from 'ai';
 
 let _provider: LanguageModelV1 | null = null;
 let _initialized = false;
+let _initPromise: Promise<void> | null = null;
 
-export async function initAI(): Promise<void> {
+async function _initAI(): Promise<void> {
   if (_initialized) return;
   _initialized = true;
 
@@ -21,7 +22,6 @@ export async function initAI(): Promise<void> {
     }
   } else if (anthropicKey) {
     try {
-      // Dynamic import — only if @ai-sdk/anthropic is installed
       // @ts-ignore - @ai-sdk/anthropic is an optional dependency
       const mod = await import('@ai-sdk/anthropic').catch(() => null);
       if (mod) {
@@ -40,6 +40,11 @@ export async function initAI(): Promise<void> {
   }
 }
 
-export function getAIProvider(): LanguageModelV1 | null {
+/** Lazy-initializes AI on first call. Safe to call multiple times. */
+export async function getAIProvider(): Promise<LanguageModelV1 | null> {
+  if (!_initPromise) {
+    _initPromise = _initAI();
+  }
+  await _initPromise;
   return _provider;
 }

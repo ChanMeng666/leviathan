@@ -3,9 +3,19 @@ import type { Request, Response, NextFunction } from 'express';
 const windowMs = 60_000; // 1 minute
 const maxRequests = 20;
 
+// In-memory rate limiting only works in long-lived processes.
+// On Vercel serverless, each invocation is stateless — skip it
+// (Vercel provides its own DDoS protection).
+const isServerless = !!process.env.VERCEL;
+
 const hits = new Map<string, { count: number; resetAt: number }>();
 
 export function rateLimiter(req: Request, res: Response, next: NextFunction): void {
+  if (isServerless) {
+    next();
+    return;
+  }
+
   const key = req.ip ?? 'unknown';
   const now = Date.now();
 

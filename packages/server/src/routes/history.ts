@@ -14,7 +14,7 @@ router.post('/history-book', async (req, res) => {
       return;
     }
 
-    const ai = getAIProvider();
+    const ai = await getAIProvider();
 
     if (!ai) {
       const result = processMockHistoryBook(

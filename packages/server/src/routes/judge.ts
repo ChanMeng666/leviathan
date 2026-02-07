@@ -13,7 +13,7 @@ router.post('/judge', async (req, res) => {
       return;
     }
 
-    const ai = getAIProvider();
+    const ai = await getAIProvider();
 
     // Mock mode: always consistent (no AI to check)
     if (!ai) {

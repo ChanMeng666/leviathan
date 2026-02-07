@@ -14,7 +14,7 @@ router.post('/event-flavor', async (req, res) => {
       return;
     }
 
-    const ai = getAIProvider();
+    const ai = await getAIProvider();
 
     if (!ai) {
       const result = processMockEventFlavor(
