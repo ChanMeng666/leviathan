@@ -6,12 +6,13 @@ import type { Decree, Consumable } from '@leviathan/shared';
 import { BalatroBackground } from '../ui/BalatroBackground';
 import { useSfx } from '../../hooks/useAudio';
 
-type Tab = 'decrees' | 'consumables' | 'upgrade' | 'sell';
+type Tab = 'decrees' | 'consumables' | 'upgrade' | 'enhance' | 'sell';
 
 interface Props { onContinue: () => void; }
 
 export function ShopScreen({ onContinue }: Props) {
   const [tab, setTab] = useState<Tab>('decrees');
+  const [removingCard, setRemovingCard] = useState(false);
   const influence = useGameStore((s) => s.influence);
   const crisisState = useGameStore((s) => s.crisisState);
   const equippedDecrees = useGameStore((s) => s.equippedDecrees);
@@ -26,6 +27,7 @@ export function ShopScreen({ onContinue }: Props) {
   const getIntentLevel = useGameStore((s) => s.getIntentLevel);
   const addInfluence = useGameStore((s) => s.addInfluence);
   const removeCard = useGameStore((s) => s.removeCard);
+  const enhanceCard = useGameStore((s) => s.enhanceCard);
   const { play: sfx } = useSfx();
 
   const ownedIds = equippedDecrees.map((d) => d.id);
@@ -44,9 +46,29 @@ export function ShopScreen({ onContinue }: Props) {
   };
 
   const handleBuyConsumable = (consumable: Consumable) => {
+    if (consumable.effectType === 'remove_card') {
+      // Remove card is used immediately in shop — show card picker
+      if (!spendInfluence(consumable.cost)) return;
+      sfx('card-select');
+      setRemovingCard(true);
+      return;
+    }
     if (!spendInfluence(consumable.cost)) return;
     sfx('card-select');
     addConsumable(consumable);
+  };
+
+  const handleRemoveCard = (cardId: string) => {
+    sfx('card-deselect');
+    removeCard(cardId);
+    setRemovingCard(false);
+  };
+
+  const handleEnhanceCard = (cardId: string, enhancement: 'foil' | 'holographic') => {
+    const cost = enhancement === 'foil' ? 2 : 4;
+    if (!spendInfluence(cost)) return;
+    sfx('stat-up');
+    enhanceCard(cardId, enhancement);
   };
 
   const handleUpgradeIntent = (intentId: string) => {
@@ -73,7 +95,7 @@ export function ShopScreen({ onContinue }: Props) {
 
         {/* Tab bar */}
         <div className="flex justify-center gap-2 mb-4">
-          {([['decrees', '法令'], ['consumables', '消耗品'], ['upgrade', '思想改造'], ['sell', '卖牌']] as const).map(([t, label]) => (
+          {([['decrees', '法令'], ['consumables', '消耗品'], ['upgrade', '思想改造'], ['enhance', '强化'], ['sell', '卖牌']] as const).map(([t, label]) => (
             <button
               key={t}
               className={`px-4 py-1.5 text-xs rounded-[var(--radius-sm)] transition-colors ${tab === t ? 'btn-primary' : 'btn-secondary'}`}
@@ -151,6 +173,60 @@ export function ShopScreen({ onContinue }: Props) {
             </div>
           )}
 
+          {tab === 'enhance' && (
+            <div className="space-y-2">
+              {[...hand, ...deck].map((card) => (
+                <div key={card.id} className="card-face border border-border p-3 flex justify-between items-center">
+                  <div>
+                    <div className="text-sm font-bold text-[#2D3B2D]">
+                      {card.name}
+                      {card.enhancement === 'foil' && <span className="text-blue ml-1">✦</span>}
+                      {card.enhancement === 'holographic' && <span className="text-gold ml-1">✧</span>}
+                    </div>
+                    <div className="text-xs text-[#5A6A52]">
+                      NF:{card.narrative_potential} · {card.tags.join(', ')}
+                      {card.enhancement && card.enhancement !== 'normal' && (
+                        <span className="text-gold ml-1">({card.enhancement === 'foil' ? '+50% NF' : '+100% NF, +0.5 PL'})</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    {(!card.enhancement || card.enhancement === 'normal') && (
+                      <>
+                        <button
+                          className={`text-xs px-2 py-1 rounded-[var(--radius-sm)] ${influence >= 2 ? 'btn-secondary text-blue' : 'bg-surface text-dim cursor-not-allowed border border-border'}`}
+                          disabled={influence < 2}
+                          onClick={() => handleEnhanceCard(card.id, 'foil')}
+                        >
+                          闪卡 (2)
+                        </button>
+                        <button
+                          className={`text-xs px-2 py-1 rounded-[var(--radius-sm)] ${influence >= 4 ? 'btn-secondary text-gold' : 'bg-surface text-dim cursor-not-allowed border border-border'}`}
+                          disabled={influence < 4}
+                          onClick={() => handleEnhanceCard(card.id, 'holographic')}
+                        >
+                          全息 (4)
+                        </button>
+                      </>
+                    )}
+                    {card.enhancement === 'foil' && (
+                      <button
+                        className={`text-xs px-2 py-1 rounded-[var(--radius-sm)] ${influence >= 3 ? 'btn-secondary text-gold' : 'bg-surface text-dim cursor-not-allowed border border-border'}`}
+                        disabled={influence < 3}
+                        onClick={() => handleEnhanceCard(card.id, 'holographic')}
+                      >
+                        升级全息 (3)
+                      </button>
+                    )}
+                    {card.enhancement === 'holographic' && (
+                      <span className="text-xs text-gold px-2 py-1">已满级</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {tab === 'sell' && (
             <div className="space-y-2">
               {[...hand, ...deck].map((card) => (
@@ -187,6 +263,31 @@ export function ShopScreen({ onContinue }: Props) {
           <button className="btn-primary px-8 py-3" onClick={onContinue}>离开黑市</button>
         </div>
       </div>
+
+      {/* Remove card overlay (from 秘密审判 consumable) */}
+      {removingCard && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="panel p-6 max-w-lg w-full max-h-[60vh] overflow-y-auto">
+            <div className="text-red text-lg font-bold mb-2">秘密审判</div>
+            <div className="text-dim text-xs mb-4">选择 1 张牌永久移除</div>
+            <div className="space-y-2">
+              {[...hand, ...deck].map((card) => (
+                <button
+                  key={card.id}
+                  className="w-full card-face border-2 border-red/30 hover:border-red p-3 text-left transition-colors rounded-[var(--radius-card)]"
+                  onClick={() => handleRemoveCard(card.id)}
+                >
+                  <div className="text-sm font-bold text-[#2D3B2D]">{card.name}</div>
+                  <div className="text-xs text-[#5A6A52]">{card.tags.join(', ')} · NF:{card.narrative_potential}</div>
+                </button>
+              ))}
+            </div>
+            <button className="btn-secondary text-xs mt-4 w-full py-2" onClick={() => setRemovingCard(false)}>
+              取消
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

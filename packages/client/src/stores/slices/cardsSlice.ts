@@ -20,6 +20,7 @@ export interface CardsSlice {
   returnAllToDeck: () => void;
   discardCards: (cardIds: string[]) => void;
   removeCard: (cardId: string) => void;
+  enhanceCard: (cardId: string, enhancement: 'foil' | 'holographic') => void;
   loadCards: (deck: Card[], hand: Card[], discard: Card[]) => void;
   loadDiscovered: (discovered: string[]) => void;
   resetCards: () => void;
@@ -134,6 +135,18 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
       discard: s.discard.filter((c) => c.id !== cardId),
       selectedCards: s.selectedCards.filter((c) => c.id !== cardId),
     })),
+
+  enhanceCard: (cardId, enhancement) =>
+    set((s) => {
+      const enhance = (cards: Card[]) =>
+        cards.map((c) => (c.id === cardId ? { ...c, enhancement } : c));
+      return {
+        deck: enhance(s.deck),
+        hand: enhance(s.hand),
+        discard: enhance(s.discard),
+        selectedCards: enhance(s.selectedCards),
+      };
+    }),
 
   loadCards: (deck, hand, discard) =>
     set({ deck, hand, discard, selectedCards: [] }),

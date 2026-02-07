@@ -31,6 +31,12 @@ export const BOSS_MODIFIERS: BossModifier[] = [
     description: '所有得分以费拉速率衰减 (×0.7)',
     effect: '最终 NF×PL × 0.7',
   },
+  {
+    id: 'purge',
+    name: '大清洗',
+    description: '回合后必须永久移除 2 张牌',
+    effect: '回合后移除 2 牌',
+  },
 ];
 
 export function getBossModifier(id: string): BossModifier | undefined {

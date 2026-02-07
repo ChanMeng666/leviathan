@@ -73,6 +73,17 @@ export function useGameLoop() {
       return;
     }
 
+    // Boss purge modifier: force remove 2 cards after clearing
+    if (crisisState.bossModifier === 'purge') {
+      const allCards = [...store.hand, ...store.deck, ...store.discard];
+      // Remove 2 random cards (or fewer if not enough)
+      const toRemove = allCards.sort(() => Math.random() - 0.5).slice(0, 2);
+      for (const card of toRemove) {
+        store.removeCard(card.id);
+      }
+      store.addHistoryEntry(`[纪元${crisisState.era}] 大清洗: 永久移除了 ${toRemove.map((c) => c.name).join('、')}`);
+    }
+
     // Check if era boss was completed (crisisIndex === 2)
     if (crisisState.crisisIndex === 2) {
       // Era transition: apply entropy + trigger narrative event

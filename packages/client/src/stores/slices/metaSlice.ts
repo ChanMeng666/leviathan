@@ -51,22 +51,61 @@ export const createMetaSlice: StateCreator<MetaSlice, [], [], MetaSlice> = (set,
 
   recordClear: (governmentType, era, score) =>
     set((s) => {
-      const meta = { ...s.meta };
+      const meta = {
+        ...s.meta,
+        unlockedDecrees: [...s.meta.unlockedDecrees],
+        unlockedCards: [...s.meta.unlockedCards],
+        clearedGovernments: [...s.meta.clearedGovernments],
+      };
       meta.totalClears++;
       if (!meta.clearedGovernments.includes(governmentType)) {
         meta.clearedGovernments.push(governmentType);
       }
       if (era > meta.highestEra) meta.highestEra = era;
       if (score > meta.highScore) meta.highScore = score;
+
+      // Unlock rewards based on conditions
+      // First clear: unlock 3 decrees
+      if (meta.totalClears === 1) {
+        for (const id of ['decree_info_control', 'decree_scapegoat_mechanism', 'decree_absolute_obedience']) {
+          if (!meta.unlockedDecrees.includes(id)) meta.unlockedDecrees.push(id);
+        }
+      }
+      // Theocracy clear: unlock 天命所归
+      if (governmentType === 'theocracy' && !meta.unlockedDecrees.includes('decree_mandate_of_heaven')) {
+        meta.unlockedDecrees.push('decree_mandate_of_heaven');
+      }
+      // Warlord clear: unlock 铁幕
+      if (governmentType === 'warlord' && !meta.unlockedDecrees.includes('decree_iron_curtain')) {
+        meta.unlockedDecrees.push('decree_iron_curtain');
+      }
+      // Era 5 clear: unlock 2 legendary cards
+      if (era >= 5) {
+        for (const id of ['card_enemy_corpse', 'card_child_drawing']) {
+          if (!meta.unlockedCards.includes(id)) meta.unlockedCards.push(id);
+        }
+      }
+
       saveToStorage(meta);
       return { meta };
     }),
 
   recordDefeat: (era, score) =>
     set((s) => {
-      const meta = { ...s.meta };
+      const meta = {
+        ...s.meta,
+        unlockedCards: [...s.meta.unlockedCards],
+      };
       if (era > meta.highestEra) meta.highestEra = era;
       if (score > meta.highScore) meta.highScore = score;
+
+      // Era 3+ defeat: unlock 2 new cards
+      if (era >= 3) {
+        for (const id of ['card_rusted_medal', 'card_propaganda_leaflet']) {
+          if (!meta.unlockedCards.includes(id)) meta.unlockedCards.push(id);
+        }
+      }
+
       saveToStorage(meta);
       return { meta };
     }),
