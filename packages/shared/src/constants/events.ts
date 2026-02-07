@@ -287,7 +287,7 @@ export const GAME_EVENTS: GameEvent[] = [
     title: '瘟疫',
     base_text:
       '不明原因的疾病开始在拥挤的难民营蔓延。高烧、咳血、然后沉默。你编造的"神圣护佑"叙事正在被一具具尸体反驳。',
-    trigger: (s) => s.population > 300 && s.supply_level < 40,
+    trigger: (s) => s.population > 300 && s.supply_level < 30,
     cooldown: 10,
     choices: [
       {
@@ -351,7 +351,7 @@ export const GAME_EVENTS: GameEvent[] = [
     title: '外邦来使',
     base_text:
       '一个穿着体面的信使骑着马出现在你的边境哨所。他带来了一封措辞傲慢的信——邻近军阀愿意"承认你的自治地位"，前提是你每月上缴粮食并承认其宗主权。',
-    trigger: (s) => s.narrative_integrity > 30,
+    trigger: (s) => s.narrative_integrity > 50,
     cooldown: 8,
     choices: [
       {

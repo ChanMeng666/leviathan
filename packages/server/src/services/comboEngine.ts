@@ -49,11 +49,13 @@ function genericResult(cards: Card[], req: WeaveRequest): WeaveResult {
   const hasPropaganda = allTags.includes('宣传') || allTags.includes('历史');
 
   const statsChange: Record<string, number> = {};
-  if (hasPropaganda || hasFaith) statsChange.narrative_integrity = Math.round(totalPotential * 0.15);
-  if (hasViolence) statsChange.violence_authority = Math.round(totalPotential * 0.1);
+  if (hasPropaganda || hasFaith) statsChange.narrative_integrity = Math.min(12, Math.round(totalPotential * 0.04));
+  if (hasViolence) statsChange.violence_authority = Math.round(totalPotential * 0.08);
   if (hasFood) statsChange.supply_level = Math.round(totalPhysical * 0.3);
-  if (hasAuthority) statsChange.corruption = Math.round(totalPotential * 0.05);
-  statsChange.sanity = -Math.round(totalPotential * 0.05);
+  if (hasAuthority) statsChange.corruption = Math.round(totalPotential * 0.03);
+  statsChange.sanity = -Math.round(totalPotential * 0.03);
+  // Base supply cost for running the loom
+  statsChange.supply_level = (statsChange.supply_level ?? 0) - 3;
 
   const cardNames = cards.map((c) => c.name).join('、');
   const storyText = `民族发明家将${cardNames}投入叙事纺织机。`
