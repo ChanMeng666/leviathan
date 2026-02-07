@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { useGameStore } from '../stores';
 import { audioManager, type SfxName, type BgmTrack } from '../lib/audioManager';
 
@@ -12,40 +12,35 @@ export function useBackgroundMusic() {
   const bgmVolume = useGameStore((s) => s.bgmVolume);
   const sfxVolume = useGameStore((s) => s.sfxVolume);
   const isMuted = useGameStore((s) => s.isMuted);
-  const hasInteracted = useRef(false);
 
   // Sync volume/mute to audio manager
   useEffect(() => { audioManager.setBgmVolume(bgmVolume); }, [bgmVolume]);
   useEffect(() => { audioManager.setSfxVolume(sfxVolume); }, [sfxVolume]);
   useEffect(() => { audioManager.setMuted(isMuted); }, [isMuted]);
 
-  // Unlock audio on first interaction
+  // Always request the correct BGM track on screen/phase change.
+  // If AudioContext is suspended, audioManager stores the desired track
+  // and ensurePlaying() will start it on the next user gesture.
   useEffect(() => {
-    const unlock = () => {
-      if (!hasInteracted.current) {
-        hasInteracted.current = true;
-        // Play the BGM track matching current state (loads on demand)
-        const state = useGameStore.getState();
-        const track = resolveTrack(state.screen, state.phase);
-        if (track) audioManager.playBgm(track);
-      }
-    };
-    document.addEventListener('click', unlock, { once: true });
-    document.addEventListener('touchend', unlock, { once: true });
-    return () => {
-      document.removeEventListener('click', unlock);
-      document.removeEventListener('touchend', unlock);
-    };
-  }, []);
-
-  // Switch BGM based on screen/phase
-  useEffect(() => {
-    if (!hasInteracted.current) return;
     const track = resolveTrack(screen, phase);
     if (track) {
       audioManager.playBgm(track);
     }
   }, [screen, phase]);
+
+  // Persistent click/touch listener to resume AudioContext and ensure BGM is playing.
+  // Unlike { once: true }, this fires on every user gesture until audio is confirmed running.
+  useEffect(() => {
+    const handler = () => {
+      audioManager.ensurePlaying();
+    };
+    document.addEventListener('click', handler, true);
+    document.addEventListener('touchend', handler, true);
+    return () => {
+      document.removeEventListener('click', handler, true);
+      document.removeEventListener('touchend', handler, true);
+    };
+  }, []);
 }
 
 function resolveTrack(screen: string, phase: string): BgmTrack | null {

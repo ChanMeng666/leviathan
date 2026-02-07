@@ -26,6 +26,7 @@ class AudioManager {
   private _bgmVolume = 0.5;
   private _sfxVolume = 0.7;
   private _muted = false;
+  private _desiredTrack: BgmTrack | null = null;
 
   private getOrCreateBgm(track: BgmTrack): Howl {
     let howl = this.bgmTracks.get(track);
@@ -54,7 +55,20 @@ class AudioManager {
     return howl;
   }
 
+  /**
+   * Resume AudioContext if suspended. Should be called from user gesture handlers.
+   */
+  resumeContext(): boolean {
+    const ctx = Howler.ctx;
+    if (ctx && ctx.state === 'suspended') {
+      ctx.resume();
+      return false; // was suspended
+    }
+    return !ctx || ctx.state === 'running'; // true if running
+  }
+
   playBgm(track: BgmTrack) {
+    this._desiredTrack = track;
     if (this.currentBgm === track) return;
 
     const targetVolume = this._muted ? 0 : this._bgmVolume;
@@ -88,8 +102,36 @@ class AudioManager {
     if (newHowl.state() === 'loaded') {
       startPlay();
     } else {
-      // Wait for load, then play
       newHowl.once('load', startPlay);
+    }
+  }
+
+  /**
+   * Called from user gesture (click/touch) to recover BGM playback.
+   * If AudioContext was suspended or BGM isn't actually playing, restart it.
+   */
+  ensurePlaying() {
+    this.resumeContext();
+
+    if (!this._desiredTrack) return;
+
+    // If we have a desired track but no active sound ID, playBgm was called
+    // but play() couldn't start (context was suspended). Retry now.
+    if (this.currentBgmId == null) {
+      const track = this._desiredTrack;
+      this.currentBgm = null; // reset so playBgm doesn't early-return
+      this.playBgm(track);
+      return;
+    }
+
+    // If we have an active ID but it's not playing, restart
+    if (this.currentBgm) {
+      const howl = this.bgmTracks.get(this.currentBgm);
+      if (howl && !howl.playing(this.currentBgmId)) {
+        const track = this.currentBgm as BgmTrack;
+        this.currentBgm = null;
+        this.playBgm(track);
+      }
     }
   }
 
@@ -104,11 +146,13 @@ class AudioManager {
       }
       this.currentBgm = null;
       this.currentBgmId = null;
+      this._desiredTrack = null;
     }
   }
 
   playSfx(name: SfxName) {
     if (this._muted) return;
+    this.resumeContext();
     const howl = this.getOrCreateSfx(name);
     howl.volume(this._sfxVolume);
     howl.play();
@@ -142,6 +186,7 @@ class AudioManager {
     this.sfxSounds.clear();
     this.currentBgm = null;
     this.currentBgmId = null;
+    this._desiredTrack = null;
   }
 }
 

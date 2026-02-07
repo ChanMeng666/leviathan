@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAudioSettings } from '../../hooks/useAudio';
 
-export function AudioSettingsButton() {
+export function AudioSettingsButton({ direction = 'down' }: { direction?: 'up' | 'down' }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -19,6 +19,10 @@ export function AudioSettingsButton() {
 
   const { isMuted, toggleMute } = useAudioSettings();
 
+  const popupPos = direction === 'up'
+    ? 'bottom-full mb-1'
+    : 'top-full mt-1';
+
   return (
     <div className="relative" ref={ref}>
       <button
@@ -30,7 +34,7 @@ export function AudioSettingsButton() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-56 panel-raised p-3 z-50 shadow-lg border border-border-strong rounded-[var(--radius-lg)]">
+        <div className={`absolute right-0 ${popupPos} w-56 panel-raised p-3 z-50 shadow-lg border border-border-strong rounded-[var(--radius-lg)]`}>
           <AudioSettingsPanel />
         </div>
       )}

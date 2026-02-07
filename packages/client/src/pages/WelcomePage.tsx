@@ -88,10 +88,10 @@ export function WelcomePage() {
   const recentSaves = saves.slice(0, 3);
 
   return (
-    <div className="h-screen flex items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center relative overflow-y-auto">
       <BalatroBackground className="z-0" />
 
-      <div className="relative z-10 max-w-lg w-full text-center px-4">
+      <div className="relative z-10 max-w-lg w-full text-center px-4 py-8">
         {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -152,7 +152,7 @@ export function WelcomePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.8 }}
           >
-            <div className="panel p-4">
+            <div className="panel p-4 max-h-[240px] overflow-y-auto">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-accent font-semibold">云存档</span>
                 {saves.length > 3 && (
@@ -223,7 +223,7 @@ export function WelcomePage() {
           transition={{ delay: 2.2 }}
         >
           <div className="flex items-center justify-center gap-3 mb-2">
-            <AudioSettingsButton />
+            <AudioSettingsButton direction="up" />
           </div>
           "任何叙事都能构建——历史、民族、国家皆可被发明"
           <br />
