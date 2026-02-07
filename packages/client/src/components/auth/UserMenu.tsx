@@ -8,7 +8,6 @@ interface UserMenuProps {
 
 export function UserMenu({ onOpenSaveManager }: UserMenuProps) {
   const user = useGameStore((s) => s.user);
-  const isGuest = useGameStore((s) => s.isGuest);
   const { signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -25,23 +24,8 @@ export function UserMenu({ onOpenSaveManager }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  if (!user && !isGuest) return null;
-
-  if (isGuest || !user) {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-dim text-xs">游客</span>
-        <button
-          className="text-accent text-xs hover:underline"
-          onClick={() => {
-            useGameStore.getState().clearAuth();
-            useGameStore.getState().setIsAuthLoading(false);
-          }}
-        >
-          登录
-        </button>
-      </div>
-    );
+  if (!user) {
+    return <span className="text-dim text-xs">游客</span>;
   }
 
   const initial = (user.name ?? user.email)?.[0]?.toUpperCase() ?? '?';

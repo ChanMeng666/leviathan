@@ -1,32 +1,25 @@
 import { useGameStore } from './stores';
 import { useAuth } from './hooks/useAuth';
-import { MainMenu } from './pages/MainMenu';
+import { WelcomePage } from './pages/WelcomePage';
 import { GameScreen } from './pages/GameScreen';
-import { LoginScreen } from './components/auth/LoginScreen';
+import { BalatroBackground } from './components/ui/BalatroBackground';
 
 export default function App() {
-  const showMenu = useGameStore((s) => s.showMenu);
-  const setShowMenu = useGameStore((s) => s.setShowMenu);
+  const screen = useGameStore((s) => s.screen);
+  const { isAuthLoading } = useAuth();
 
-  const { user, isGuest, isAuthLoading } = useAuth();
-
-  // Loading auth state
   if (isAuthLoading) {
     return (
-      <div className="h-screen flex items-center justify-center felt-bg">
-        <div className="text-dim text-sm">加载中...</div>
+      <div className="h-screen flex items-center justify-center relative overflow-hidden">
+        <BalatroBackground className="z-0" />
+        <div className="relative z-10 text-dim text-sm">加载中...</div>
       </div>
     );
   }
 
-  // Not authenticated and not in guest mode — show login
-  if (!user && !isGuest) {
-    return <LoginScreen />;
+  if (screen === 'game') {
+    return <GameScreen />;
   }
 
-  if (showMenu) {
-    return <MainMenu onStart={() => setShowMenu(false)} />;
-  }
-
-  return <GameScreen />;
+  return <WelcomePage />;
 }

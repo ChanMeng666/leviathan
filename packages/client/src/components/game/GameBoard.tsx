@@ -11,21 +11,38 @@ import { ScapegoatWheel } from './ScapegoatWheel';
 import { HistoryBook } from './HistoryBook';
 import { UserMenu } from '../auth/UserMenu';
 import { SaveManager } from '../auth/SaveManager';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { useGameLoop } from '../../hooks/useGameLoop';
+import { useCloudSaves } from '../../hooks/useCloudSaves';
 
 export function GameBoard() {
   const phase = useGameStore((s) => s.phase);
   const day = useGameStore((s) => s.day);
   const gameOver = useGameStore((s) => s.gameOver);
   const nation = useGameStore((s) => s.nation);
+  const user = useGameStore((s) => s.user);
+  const setScreen = useGameStore((s) => s.setScreen);
 
   const { advanceDay, endActionPhase } = useGameLoop();
+  const { saveGame } = useCloudSaves();
 
   const [showScapegoat, setShowScapegoat] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showSaveManager, setShowSaveManager] = useState(false);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
 
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
+
+  const handleBackToMenu = () => {
+    setShowBackConfirm(true);
+  };
+
+  const confirmBack = () => {
+    if (user) {
+      saveGame('自动存档').catch(() => {});
+    }
+    setScreen('welcome');
+  };
 
   if (phase === 'prologue') return <PrologueScreen />;
   if (gameOver) return <GameOverScreen />;
@@ -34,8 +51,16 @@ export function GameBoard() {
     <div className="h-screen flex flex-col felt-bg">
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-border px-4 py-2 bg-surface/50">
-        <div className="text-accent text-sm font-bold">
-          利维坦的诞生 <span className="text-dim font-mono text-xs ml-2">第 {day} 天</span>
+        <div className="flex items-center gap-3">
+          <button
+            className="btn-secondary text-xs px-3 py-1"
+            onClick={handleBackToMenu}
+          >
+            &larr; 菜单
+          </button>
+          <div className="text-accent text-sm font-bold">
+            利维坦的诞生 <span className="text-dim font-mono text-xs ml-2">第 {day} 天</span>
+          </div>
         </div>
         <div className="flex gap-2 items-center">
           {unsat > 50 && (
@@ -115,6 +140,16 @@ export function GameBoard() {
 
       {/* Save manager */}
       <SaveManager open={showSaveManager} onClose={() => setShowSaveManager(false)} />
+
+      {/* Back to menu confirm */}
+      <ConfirmDialog
+        open={showBackConfirm}
+        onClose={() => setShowBackConfirm(false)}
+        onConfirm={confirmBack}
+        title="返回主菜单"
+        message="返回主菜单？当前进度已自动保存。"
+        confirmText="返回"
+      />
     </div>
   );
 }

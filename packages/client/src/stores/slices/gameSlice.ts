@@ -1,19 +1,21 @@
 import type { StateCreator } from 'zustand';
 import type { GamePhase, GameOverReason } from '@leviathan/shared';
 
+export type Screen = 'welcome' | 'game';
+
 export interface GameSlice {
   day: number;
   phase: GamePhase;
   gameOver: boolean;
   gameOverReason: GameOverReason | null;
   isWeaving: boolean;       // AI request in progress
-  showMenu: boolean;
+  screen: Screen;
 
   nextDay: () => void;
   setPhase: (phase: GamePhase) => void;
   setGameOver: (reason: GameOverReason) => void;
   setIsWeaving: (v: boolean) => void;
-  setShowMenu: (v: boolean) => void;
+  setScreen: (s: Screen) => void;
   loadGame: (day: number, phase: GamePhase, gameOver: boolean, gameOverReason: GameOverReason | null) => void;
   resetGame: () => void;
 }
@@ -24,7 +26,7 @@ export const createGameSlice: StateCreator<GameSlice, [], [], GameSlice> = (set)
   gameOver: false,
   gameOverReason: null,
   isWeaving: false,
-  showMenu: true,
+  screen: 'welcome',
 
   nextDay: () =>
     set((s) => ({ day: s.day + 1, phase: 'draw' })),
@@ -36,10 +38,10 @@ export const createGameSlice: StateCreator<GameSlice, [], [], GameSlice> = (set)
 
   setIsWeaving: (v) => set({ isWeaving: v }),
 
-  setShowMenu: (v) => set({ showMenu: v }),
+  setScreen: (s) => set({ screen: s }),
 
   loadGame: (day, phase, gameOver, gameOverReason) =>
-    set({ day, phase, gameOver, gameOverReason, isWeaving: false, showMenu: false }),
+    set({ day, phase, gameOver, gameOverReason, isWeaving: false, screen: 'game' }),
 
   resetGame: () =>
     set({
@@ -48,6 +50,6 @@ export const createGameSlice: StateCreator<GameSlice, [], [], GameSlice> = (set)
       gameOver: false,
       gameOverReason: null,
       isWeaving: false,
-      showMenu: true,
+      screen: 'welcome',
     }),
 });
