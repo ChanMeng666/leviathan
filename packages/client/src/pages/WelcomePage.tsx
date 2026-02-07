@@ -253,6 +253,58 @@ export function WelcomePage() {
           <br />
           <span className="text-fg/25">v0.1.0</span>
         </motion.div>
+
+        {/* Developer branding */}
+        <motion.div
+          className="mt-6 pt-5 border-t border-fg/10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.5 }}
+        >
+          <div className="flex items-center justify-center gap-2.5 mb-2">
+            <img
+              src="/chan_logo.svg"
+              alt="Chan Meng"
+              className="w-6 h-6"
+              style={{ filter: 'invert(1)', opacity: 0.5 }}
+            />
+            <span className="text-fg/50 text-[11px]">
+              由 <span className="text-accent/80 font-semibold">Chan Meng</span> 设计开发
+            </span>
+          </div>
+          <p className="text-fg/30 text-[10px] mb-2.5 leading-relaxed max-w-xs mx-auto">
+            需要定制网站或Web应用？欢迎联系开发者
+          </p>
+          <div className="flex items-center justify-center gap-3 text-[10px]">
+            <a
+              href="mailto:chanmeng.dev@gmail.com"
+              className="text-fg/40 hover:text-accent transition-colors"
+              title="联系开发者"
+            >
+              chanmeng.dev@gmail.com
+            </a>
+            <span className="text-fg/15">|</span>
+            <a
+              href="https://github.com/ChanMeng666"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg/40 hover:text-accent transition-colors"
+              title="开发者作品集"
+            >
+              GitHub
+            </a>
+            <span className="text-fg/15">|</span>
+            <a
+              href="https://github.com/ChanMeng666/leviathan"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-fg/40 hover:text-accent transition-colors"
+              title="项目源码"
+            >
+              源码
+            </a>
+          </div>
+        </motion.div>
       </div>
 
       {/* Auth modal */}
