@@ -1,5 +1,20 @@
 import type { Card, NationState, GamePhase, GameOverReason } from './game.js';
 
+export interface EventRecord {
+  eventId: string;
+  day: number;
+  choiceId: string;
+}
+
+export interface NarrativeEntry {
+  id: string;
+  day: number;
+  title: string;
+  text: string;
+  comment: string;
+  timestamp: number;
+}
+
 /** Full game state for cloud save (matches Zustand partialize shape) */
 export interface GameSaveState {
   nation: NationState;
@@ -10,14 +25,9 @@ export interface GameSaveState {
   phase: GamePhase;
   gameOver: boolean;
   gameOverReason: GameOverReason | null;
-  eventHistory: string[];
+  eventHistory: EventRecord[];
   eventCooldowns: Record<string, number>;
-  narrativeLog: Array<{
-    day: number;
-    title: string;
-    text: string;
-    comment?: string;
-  }>;
+  narrativeLog: NarrativeEntry[];
 }
 
 /** Lightweight save listing for UI display */

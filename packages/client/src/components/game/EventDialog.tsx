@@ -36,7 +36,7 @@ export function EventDialog() {
     }
     addHistoryEntry(`[Day ${day}] 事件「${activeEvent.title}」: 选择了「${choice.label}」`);
     resolveEvent(activeEvent.id, choice.id, day);
-    setPhase('settle');
+    setPhase('action');
   };
 
   return (

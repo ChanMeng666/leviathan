@@ -38,16 +38,18 @@ export const createCardsSlice: StateCreator<CardsSlice, [], [], CardsSlice> = (s
     set((s) => {
       let deck = [...s.deck];
       const hand = [...s.hand];
+      let reshuffled = false;
 
       // Reshuffle discard into deck if needed
       if (deck.length < n) {
         deck = [...deck, ...shuffleArray(s.discard)];
+        reshuffled = true;
       }
 
       const drawn = deck.splice(0, n);
       hand.push(...drawn);
 
-      return { deck, hand, discard: deck.length < n ? [] : s.discard };
+      return { deck, hand, discard: reshuffled ? [] : s.discard };
     }),
 
   selectCard: (card) =>

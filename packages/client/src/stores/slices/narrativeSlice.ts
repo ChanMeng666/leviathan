@@ -1,13 +1,5 @@
 import type { StateCreator } from 'zustand';
-
-export interface NarrativeEntry {
-  id: string;
-  day: number;
-  title: string;
-  text: string;
-  comment: string;
-  timestamp: number;
-}
+import type { NarrativeEntry } from '@leviathan/shared';
 
 export interface NarrativeSlice {
   narrativeLog: NarrativeEntry[];

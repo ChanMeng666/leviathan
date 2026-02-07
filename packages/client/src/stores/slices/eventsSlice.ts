@@ -1,12 +1,6 @@
 import type { StateCreator } from 'zustand';
-import type { GameEvent } from '@leviathan/shared';
+import type { GameEvent, EventRecord } from '@leviathan/shared';
 import { GAME_EVENTS } from '@leviathan/shared';
-
-export interface EventRecord {
-  eventId: string;
-  day: number;
-  choiceId: string;
-}
 
 export interface EventsSlice {
   eventQueue: GameEvent[];

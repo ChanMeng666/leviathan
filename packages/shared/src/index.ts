@@ -32,6 +32,8 @@ export type {
   GameSaveState,
   GameSaveMeta,
   GameRunRecord,
+  EventRecord,
+  NarrativeEntry,
 } from './types/save.js';
 
 // Constants
