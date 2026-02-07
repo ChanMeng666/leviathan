@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { audioManager } from '../../lib/audioManager';
 
 interface TypewriterTextProps {
   text: string;
@@ -23,6 +24,7 @@ export function TypewriterText({
     const timer = setInterval(() => {
       i++;
       setDisplayed(text.slice(0, i));
+      if (i % 4 === 0) audioManager.playSfx('typewriter');
       if (i >= text.length) {
         clearInterval(timer);
         setDone(true);

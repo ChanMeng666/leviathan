@@ -6,9 +6,10 @@ import { createEventsSlice, type EventsSlice } from './slices/eventsSlice';
 import { createGameSlice, type GameSlice } from './slices/gameSlice';
 import { createNarrativeSlice, type NarrativeSlice } from './slices/narrativeSlice';
 import { createAuthSlice, type AuthSlice } from './slices/authSlice';
+import { createAudioSlice, type AudioSlice } from './slices/audioSlice';
 import { buildSaveState } from './buildSaveState';
 
-export type GameStore = NationSlice & CardsSlice & EventsSlice & GameSlice & NarrativeSlice & AuthSlice;
+export type GameStore = NationSlice & CardsSlice & EventsSlice & GameSlice & NarrativeSlice & AuthSlice & AudioSlice;
 
 export const useGameStore = create<GameStore>()(
   persist(
@@ -19,6 +20,7 @@ export const useGameStore = create<GameStore>()(
       ...createGameSlice(...a),
       ...createNarrativeSlice(...a),
       ...createAuthSlice(...a),
+      ...createAudioSlice(...a),
     }),
     {
       name: 'leviathan-save',

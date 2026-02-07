@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useGameStore } from '../../stores';
 import { CardSlot } from './CardSlot';
 import { useAINarrative } from '../../hooks/useAINarrative';
 import { findMatchingCombo } from '@leviathan/shared';
+import { useSfx } from '../../hooks/useAudio';
 
 const INTENTS = [
   '编造建国神话',
@@ -23,9 +24,19 @@ export function NarrativeLoom() {
   const [intent, setIntent] = useState(INTENTS[0]);
 
   const { weave } = useAINarrative();
+  const { play: sfx } = useSfx();
+  const prevComboRef = useRef<string | undefined>(undefined);
 
   const cardIds = selectedCards.map((c) => c.id);
   const combo = selectedCards.length >= 2 ? findMatchingCombo(cardIds) : undefined;
+
+  // Play combo detect sound when a combo is first matched
+  useEffect(() => {
+    if (combo && combo.name !== prevComboRef.current) {
+      sfx('combo-detect');
+    }
+    prevComboRef.current = combo?.name;
+  }, [combo, sfx]);
 
   const canWeave = selectedCards.length >= 1 && phase === 'action' && !isWeaving;
 
@@ -82,7 +93,7 @@ export function NarrativeLoom() {
             : 'bg-surface text-dim cursor-not-allowed border border-border'
         }`}
         disabled={!canWeave}
-        onClick={() => weave(intent)}
+        onClick={() => { sfx('weave-start'); weave(intent); }}
       >
         {isWeaving ? '纺织中...' : '启动纺织机'}
       </button>

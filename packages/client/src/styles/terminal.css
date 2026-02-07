@@ -224,6 +224,45 @@ html, body, #root {
   letter-spacing: 0.05em;
 }
 
+/* === Audio Slider === */
+.audio-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--color-surface);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+.audio-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #E8A926 0%, #D4A843 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+.audio-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+.audio-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #E8A926 0%, #D4A843 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  border: none;
+}
+.audio-slider::-moz-range-track {
+  height: 6px;
+  background: var(--color-surface);
+  border-radius: 3px;
+}
+
 /* === Reduced Motion === */
 @media (prefers-reduced-motion: reduce) {
   .cursor-blink::after {

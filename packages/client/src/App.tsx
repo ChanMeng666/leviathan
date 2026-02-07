@@ -1,5 +1,6 @@
 import { useGameStore } from './stores';
 import { useAuth } from './hooks/useAuth';
+import { useBackgroundMusic } from './hooks/useAudio';
 import { WelcomePage } from './pages/WelcomePage';
 import { GameScreen } from './pages/GameScreen';
 import { BalatroBackground } from './components/ui/BalatroBackground';
@@ -7,6 +8,7 @@ import { BalatroBackground } from './components/ui/BalatroBackground';
 export default function App() {
   const screen = useGameStore((s) => s.screen);
   const { isAuthLoading } = useAuth();
+  useBackgroundMusic();
 
   if (isAuthLoading) {
     return (

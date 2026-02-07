@@ -3,6 +3,7 @@ import { useGameStore } from '../stores';
 import { GAME_EVENTS, EXTENDED_CARDS, GOVERNMENT_EFFECTS, GOVERNMENT_LABELS } from '@leviathan/shared';
 import type { GameEvent, NationState, NationStatChanges, EventFlavorRequest } from '@leviathan/shared';
 import { apiFetch } from '../lib/api';
+import { audioManager } from '../lib/audioManager';
 
 const DAY_MILESTONES = [3, 5, 8];
 
@@ -58,6 +59,7 @@ export function useGameLoop() {
     // Check for pending government type transitions from previous actions
     const govTransition = store.consumeGovTransition();
     if (govTransition && govTransition !== 'fela') {
+      audioManager.playSfx('gov-transition');
       const govLabel = GOVERNMENT_LABELS[govTransition] || govTransition;
       store.addNarrative({
         day: newDay,
@@ -85,6 +87,7 @@ export function useGameLoop() {
         const randomCard = undiscovered[Math.floor(Math.random() * undiscovered.length)];
         const discovered = store.discoverCard(randomCard.id);
         if (discovered) {
+          audioManager.playSfx('discovery');
           store.addNarrative({
             day: newDay,
             title: `发现新素材: ${randomCard.name}`,

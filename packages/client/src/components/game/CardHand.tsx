@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import type { Card } from '@leviathan/shared';
 import { useGameStore } from '../../stores';
+import { useSfx } from '../../hooks/useAudio';
 
 const rarityColors: Record<string, { border: string; tag: string }> = {
   common: { border: 'border-card-common', tag: 'bg-card-common/20 text-dim' },
@@ -10,12 +11,13 @@ const rarityColors: Record<string, { border: string; tag: string }> = {
 
 function CardItem({ card, onSelect }: { card: Card; onSelect: (c: Card) => void }) {
   const rarity = rarityColors[card.rarity];
+  const { play: sfx } = useSfx();
   return (
     <motion.button
       className={`card-hover card-face border-2 ${rarity.border} p-3 text-left w-full`}
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
-      onClick={() => onSelect(card)}
+      onClick={() => { sfx('card-select'); onSelect(card); }}
     >
       <div className="text-sm font-bold truncate text-[#2D3B2D]">{card.name}</div>
       <div className="text-xs text-[#5A6A52] mt-0.5 line-clamp-2">{card.description}</div>

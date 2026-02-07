@@ -3,6 +3,7 @@ import { useGameStore } from '../stores';
 import type { WeaveRequest, WeaveResult } from '@leviathan/shared';
 import { findMatchingCombo, EXTENDED_CARDS } from '@leviathan/shared';
 import { apiFetch } from '../lib/api';
+import { audioManager } from '../lib/audioManager';
 
 export function useAINarrative() {
   const weave = useCallback(async (intent: string) => {
@@ -63,6 +64,7 @@ export function useAINarrative() {
       // Check for combo
       const combo = findMatchingCombo(cardIds);
       if (combo) {
+        audioManager.playSfx('combo-acquire');
         store.addMythology(combo.result);
         store.addHistoryEntry(
           `[Day ${day}] 合成成功: ${combo.name} — ${combo.description.slice(0, 50)}...`,
@@ -80,6 +82,7 @@ export function useAINarrative() {
       store.discardSelected();
 
       // Add narrative to log
+      audioManager.playSfx('weave-success');
       store.addNarrative({
         day,
         title: result.title,
@@ -107,6 +110,7 @@ export function useAINarrative() {
           const randomCard = undiscovered[Math.floor(Math.random() * undiscovered.length)];
           const discovered = store.discoverCard(randomCard.id);
           if (discovered) {
+            audioManager.playSfx('discovery');
             store.addNarrative({
               day,
               title: `意外发现: ${randomCard.name}`,
@@ -119,6 +123,7 @@ export function useAINarrative() {
       }
     } catch (err) {
       console.error('Weave failed:', err);
+      audioManager.playSfx('weave-fail');
       // Still discard cards on error to prevent stuck state
       store.discardSelected();
       store.addNarrative({

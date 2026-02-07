@@ -1,8 +1,10 @@
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Modal } from '../ui/Modal';
 import { useGameStore } from '../../stores';
 import { getCardById, EXTENDED_CARDS } from '@leviathan/shared';
 import type { EventChoice } from '@leviathan/shared';
+import { useSfx } from '../../hooks/useAudio';
 
 const STAT_NAMES: Record<string, string> = {
   narrative_integrity: '叙事完整度',
@@ -26,10 +28,22 @@ export function EventDialog() {
   const incrementAffinity = useGameStore((s) => s.incrementAffinity);
   const day = useGameStore((s) => s.day);
   const setPhase = useGameStore((s) => s.setPhase);
+  const { play: sfx } = useSfx();
+  const triggeredRef = useRef(false);
+
+  // Play event trigger sound when event appears
+  useEffect(() => {
+    if (activeEvent && !triggeredRef.current) {
+      sfx('event-trigger');
+      triggeredRef.current = true;
+    }
+    if (!activeEvent) triggeredRef.current = false;
+  }, [activeEvent, sfx]);
 
   if (!activeEvent) return null;
 
   const handleChoice = (choice: EventChoice) => {
+    sfx('event-choice');
     applyStatChanges(choice.effect);
     if (choice.new_trait) addTrait(choice.new_trait);
     if (choice.new_card) {
@@ -54,6 +68,7 @@ export function EventDialog() {
 
     addHistoryEntry(`[Day ${day}] 事件「${activeEvent.title}」: 选择了「${choice.label}」`);
     resolveEvent(activeEvent.id, choice.id, day);
+    sfx('event-resolve');
     setPhase('action');
   };
 

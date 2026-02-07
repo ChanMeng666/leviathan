@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Modal } from '../ui/Modal';
 import { useGameStore } from '../../stores';
 import type { ScapegoatGroup } from '@leviathan/shared';
+import { useSfx } from '../../hooks/useAudio';
 
 interface ScapegoatWheelProps {
   open: boolean;
@@ -19,15 +20,18 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
   const addHistoryEntry = useGameStore((s) => s.addHistoryEntry);
   const sacrificeGroup = useGameStore((s) => s.sacrificeGroup);
   const incrementAffinity = useGameStore((s) => s.incrementAffinity);
+  const { play: sfx } = useSfx();
 
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
   const availableGroups = scapegoats.filter((sg) => !sg.sacrificed);
 
   const handleSacrifice = (group: ScapegoatGroup) => {
+    sfx('wheel-spin');
     setSpinning(true);
     setSelected(group);
 
     setTimeout(() => {
+      sfx('sacrifice');
       applyStatChanges({
         narrative_integrity: 20,
         violence_authority: 10,

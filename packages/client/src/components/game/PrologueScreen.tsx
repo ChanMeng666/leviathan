@@ -5,6 +5,7 @@ import { BalatroBackground } from '../ui/BalatroBackground';
 import { useGameStore } from '../../stores';
 import { PROLOGUE_SCENARIO, getCardById } from '@leviathan/shared';
 import type { ScenarioChoice, GovernmentType, NationStatChanges } from '@leviathan/shared';
+import { useSfx } from '../../hooks/useAudio';
 
 const STAT_NAMES: Record<string, string> = {
   narrative_integrity: '叙事完整度',
@@ -41,10 +42,12 @@ export function PrologueScreen() {
   const discoverCard = useGameStore((s) => s.discoverCard);
   const addNarrative = useGameStore((s) => s.addNarrative);
 
+  const { play: sfx } = useSfx();
   const scenario = PROLOGUE_SCENARIO;
 
   const handleChoice = (choice: ScenarioChoice) => {
     if (chosen) return;
+    sfx('event-choice');
     setChosen(true);
 
     // Apply stat effects

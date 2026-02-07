@@ -1,11 +1,50 @@
+import { useRef, useEffect } from 'react';
 import { useGameStore } from '../../stores';
 import { ProgressBar } from '../ui/ProgressBar';
 import { GOVERNMENT_LABELS, GOVERNMENT_DESCRIPTIONS } from '@leviathan/shared';
+import { audioManager } from '../../lib/audioManager';
 
 export function StatsPanel() {
   const nation = useGameStore((s) => s.nation);
   const day = useGameStore((s) => s.day);
   const scapegoats = useGameStore((s) => s.scapegoats);
+
+  // Track stat changes for sfx
+  const prevStats = useRef({
+    narrative_integrity: nation.narrative_integrity,
+    violence_authority: nation.violence_authority,
+    supply_level: nation.supply_level,
+    sanity: nation.sanity,
+  });
+  const dangerTriggered = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    const prev = prevStats.current;
+    const stats = { narrative_integrity: nation.narrative_integrity, violence_authority: nation.violence_authority, supply_level: nation.supply_level, sanity: nation.sanity };
+    let hadChange = false;
+    let net = 0;
+
+    for (const key of Object.keys(stats) as (keyof typeof stats)[]) {
+      const diff = stats[key] - prev[key];
+      if (diff !== 0) {
+        hadChange = true;
+        // For narrative_integrity, going up is bad (closer to madness)
+        net += key === 'narrative_integrity' ? -diff : diff;
+      }
+      // Danger pulse: trigger once when entering <20 zone
+      if (key !== 'narrative_integrity' && stats[key] < 20 && prev[key] >= 20 && !dangerTriggered.current.has(key)) {
+        dangerTriggered.current.add(key);
+        audioManager.playSfx('danger-pulse');
+      }
+      if (stats[key] >= 20) dangerTriggered.current.delete(key);
+    }
+
+    if (hadChange) {
+      audioManager.playSfx(net >= 0 ? 'stat-up' : 'stat-down');
+    }
+
+    prevStats.current = stats;
+  }, [nation.narrative_integrity, nation.violence_authority, nation.supply_level, nation.sanity]);
 
   const govLabel = GOVERNMENT_LABELS[nation.government_type] || nation.government_type;
   const govDesc = GOVERNMENT_DESCRIPTIONS[nation.government_type] || '';

@@ -1,5 +1,7 @@
+import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ReactNode } from 'react';
+import { useSfx } from '../../hooks/useAudio';
 
 interface ModalProps {
   open: boolean;
@@ -10,6 +12,14 @@ interface ModalProps {
 }
 
 export function Modal({ open, onClose, title, variant = 'default', children }: ModalProps) {
+  const { play: sfx } = useSfx();
+  const wasOpen = useRef(open);
+
+  useEffect(() => {
+    if (open && !wasOpen.current) sfx('modal-open');
+    if (!open && wasOpen.current) sfx('modal-close');
+    wasOpen.current = open;
+  }, [open, sfx]);
   const titleColor = variant === 'danger' ? 'text-red' : 'text-accent';
   const panelBg = variant === 'danger' ? 'bg-danger-bg' : 'bg-surface-raised';
 

@@ -12,8 +12,10 @@ import { HistoryBook } from './HistoryBook';
 import { UserMenu } from '../auth/UserMenu';
 import { SaveManager } from '../auth/SaveManager';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { AudioSettingsButton } from '../ui/AudioSettings';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useCloudSaves } from '../../hooks/useCloudSaves';
+import { useSfx } from '../../hooks/useAudio';
 
 export function GameBoard() {
   const phase = useGameStore((s) => s.phase);
@@ -25,6 +27,7 @@ export function GameBoard() {
 
   const { advanceDay, endActionPhase } = useGameLoop();
   const { saveGame } = useCloudSaves();
+  const { play: sfx } = useSfx();
 
   const [showScapegoat, setShowScapegoat] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -34,6 +37,7 @@ export function GameBoard() {
   const unsat = Math.max(0, 100 - nation.narrative_integrity - nation.violence_authority);
 
   const handleBackToMenu = () => {
+    sfx('btn-click');
     setShowBackConfirm(true);
   };
 
@@ -66,18 +70,19 @@ export function GameBoard() {
           {unsat > 50 && (
             <button
               className="btn-danger text-xs px-3 py-1"
-              onClick={() => setShowScapegoat(true)}
+              onClick={() => { sfx('btn-click'); setShowScapegoat(true); }}
             >
               替罪羊轮盘
             </button>
           )}
           <button
             className="btn-secondary text-xs px-3 py-1"
-            onClick={() => setShowHistory(true)}
+            onClick={() => { sfx('btn-click'); setShowHistory(true); }}
           >
             历史档案
           </button>
           <UserMenu onOpenSaveManager={() => setShowSaveManager(true)} />
+          <AudioSettingsButton />
           <PhaseIndicator phase={phase} />
         </div>
       </div>
@@ -113,7 +118,7 @@ export function GameBoard() {
           {phase === 'action' && (
             <button
               className="btn-secondary text-xs px-4 py-1.5"
-              onClick={endActionPhase}
+              onClick={() => { sfx('phase-change'); endActionPhase(); }}
             >
               结束行动
             </button>
@@ -121,7 +126,7 @@ export function GameBoard() {
           {(phase === 'draw' || phase === 'settle') && (
             <button
               className="btn-primary text-xs px-4 py-1.5"
-              onClick={advanceDay}
+              onClick={() => { sfx('day-advance'); advanceDay(); }}
             >
               下一天
             </button>

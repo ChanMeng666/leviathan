@@ -5,9 +5,11 @@ import { BalatroBackground } from '../components/ui/BalatroBackground';
 import { AuthModal } from '../components/auth/AuthModal';
 import { SaveList } from '../components/auth/SaveList';
 import { SaveManager } from '../components/auth/SaveManager';
+import { AudioSettingsButton } from '../components/ui/AudioSettings';
 import { useGameStore } from '../stores';
 import { useAuth } from '../hooks/useAuth';
 import { useCloudSaves } from '../hooks/useCloudSaves';
+import { useSfx } from '../hooks/useAudio';
 
 export function WelcomePage() {
   const day = useGameStore((s) => s.day);
@@ -25,6 +27,7 @@ export function WelcomePage() {
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
   const [showSaveManager, setShowSaveManager] = useState(false);
 
+  const { play: sfx } = useSfx();
   const hasSave = day > 0;
 
   // Fetch cloud saves when user is logged in
@@ -126,7 +129,7 @@ export function WelcomePage() {
         >
           <button
             className="btn-primary w-full text-sm py-3"
-            onClick={handleNewGame}
+            onClick={() => { sfx('btn-click'); handleNewGame(); }}
           >
             新游戏 — 发明一个民族
           </button>
@@ -134,7 +137,7 @@ export function WelcomePage() {
           {hasSave && (
             <button
               className="btn-secondary w-full text-sm py-3"
-              onClick={handleContinue}
+              onClick={() => { sfx('btn-click'); handleContinue(); }}
             >
               继续 — 第 {day} 天
             </button>
@@ -219,6 +222,9 @@ export function WelcomePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 2.2 }}
         >
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <AudioSettingsButton />
+          </div>
           "任何叙事都能构建——历史、民族、国家皆可被发明"
           <br />
           <span className="text-fg/25">v0.1.0</span>

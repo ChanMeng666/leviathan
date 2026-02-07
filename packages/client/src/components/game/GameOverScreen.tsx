@@ -4,6 +4,8 @@ import type { GameOverReason, HistoryBookResult } from '@leviathan/shared';
 import { useGameStore } from '../../stores';
 import { TypewriterText } from '../ui/TypewriterText';
 import { BalatroBackground } from '../ui/BalatroBackground';
+import { useSfx } from '../../hooks/useAudio';
+import type { SfxName } from '../../lib/audioManager';
 
 const hexToGL = (hex: string): [number, number, number] => {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -47,9 +49,21 @@ export function GameOverScreen() {
 
   const [historyBook, setHistoryBook] = useState<HistoryBookResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const { play: sfx } = useSfx();
 
   const reason = gameOverReason ?? 'riot';
   const deathInfo = DEATH_MESSAGES[reason];
+
+  const DEATH_SFX: Record<GameOverReason, SfxName> = {
+    riot: 'death-riot',
+    starvation: 'death-starve',
+    madness: 'death-madness',
+    insanity: 'death-insanity',
+  };
+
+  useEffect(() => {
+    if (gameOverReason) sfx(DEATH_SFX[gameOverReason]);
+  }, [gameOverReason]);
 
   useEffect(() => {
     if (!gameOverReason || nation.history_log.length === 0) return;
@@ -146,7 +160,7 @@ export function GameOverScreen() {
 
         <button
           className="btn-primary px-8 py-3"
-          onClick={handleRestart}
+          onClick={() => { sfx('btn-click'); handleRestart(); }}
         >
           重新开始 — 发明另一个民族
         </button>
