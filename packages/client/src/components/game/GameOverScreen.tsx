@@ -3,6 +3,14 @@ import { motion } from 'framer-motion';
 import type { GameOverReason, HistoryBookResult } from '@leviathan/shared';
 import { useGameStore } from '../../stores';
 import { TypewriterText } from '../ui/TypewriterText';
+import { BalatroBackground } from '../ui/BalatroBackground';
+
+const hexToGL = (hex: string): [number, number, number] => {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return [r, g, b];
+};
 
 const DEATH_MESSAGES: Record<GameOverReason, { title: string; text: string }> = {
   riot: {
@@ -79,57 +87,68 @@ export function GameOverScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 bg-black flex items-center justify-center p-8"
+      className="fixed inset-0 z-50 flex items-center justify-center p-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
     >
-      <div className="max-w-2xl w-full text-center">
+      {/* Red-shifted shader background */}
+      <BalatroBackground
+        color1={hexToGL('#DE443B')}
+        color2={hexToGL('#3B1C1C')}
+        color3={hexToGL('#0A0A0A')}
+        spinSpeed={0.2}
+        contrast={1.0}
+        className="z-0"
+      />
+
+      <div className="relative z-10 max-w-2xl w-full text-center">
         <motion.div
-          className="text-terminal-red text-3xl glow-red mb-4 font-bold"
+          className="text-red text-3xl mb-4 font-bold"
+          style={{ fontFamily: 'var(--font-display)' }}
           initial={{ y: -20 }}
           animate={{ y: 0 }}
         >
-          GAME OVER
+          游戏结束
         </motion.div>
 
-        <div className="text-terminal-red text-xl mb-2">{deathInfo.title}</div>
+        <div className="text-red text-xl mb-2">{deathInfo.title}</div>
 
-        <div className="text-terminal-dim text-sm mb-6 max-w-md mx-auto">
+        <div className="text-fg/70 text-sm mb-6 max-w-md mx-auto">
           <TypewriterText text={deathInfo.text} speed={25} />
         </div>
 
-        <div className="text-terminal-dim text-xs mb-6">
-          存活天数: {day} | 最终人口: {nation.population} | 政体: {nation.government_type}
+        <div className="text-dim text-xs mb-6 font-mono">
+          存活天数: {day} | 最终人口: {nation.population} | 政体: {nation.government_type.toUpperCase()}
         </div>
 
         {/* History Book */}
         {loading && (
-          <div className="text-terminal-yellow animate-pulse mb-6">
+          <div className="text-gold mb-6">
             后世历史学家正在撰写评价...
           </div>
         )}
 
         {historyBook && (
           <motion.div
-            className="border border-terminal-yellow p-4 mb-6 text-left"
+            className="panel-raised p-5 mb-6 text-left border border-gold/30"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="text-terminal-yellow glow-yellow text-center mb-2">
-              {'>'} {historyBook.title} {'<'}
+            <div className="text-gold text-center mb-2 font-bold">
+              {historyBook.title}
             </div>
-            <div className="text-sm text-terminal-fg mb-3">{historyBook.body}</div>
-            <div className="text-xs text-terminal-cyan italic text-center">
+            <div className="text-sm text-fg mb-3">{historyBook.body}</div>
+            <div className="text-xs text-teal italic text-center">
               "{historyBook.epitaph}"
             </div>
           </motion.div>
         )}
 
         <button
-          className="border border-terminal-green text-terminal-green px-6 py-2 hover:bg-terminal-green/10 glow-green"
+          className="btn-primary px-8 py-3"
           onClick={handleRestart}
         >
-          [ 重新开始 — 发明另一个民族 ]
+          重新开始 — 发明另一个民族
         </button>
       </div>
     </motion.div>

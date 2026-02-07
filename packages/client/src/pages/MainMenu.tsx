@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { TypewriterText } from '../components/ui/TypewriterText';
+import { BalatroBackground } from '../components/ui/BalatroBackground';
 import { useGameStore } from '../stores';
 
 interface MainMenuProps {
@@ -8,7 +9,7 @@ interface MainMenuProps {
 }
 
 export function MainMenu({ onStart }: MainMenuProps) {
-  const [showIntro, setShowIntro] = useState(true);
+  const [showIntro] = useState(true);
   const day = useGameStore((s) => s.day);
   const resetNation = useGameStore((s) => s.resetNation);
   const resetCards = useGameStore((s) => s.resetCards);
@@ -32,24 +33,28 @@ export function MainMenu({ onStart }: MainMenuProps) {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center">
-      <div className="max-w-lg w-full text-center px-4">
+    <div className="h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Shader background */}
+      <BalatroBackground className="z-0" />
+
+      {/* Content */}
+      <div className="relative z-10 max-w-lg w-full text-center px-4">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
-          <div className="text-terminal-green glow-green text-2xl mb-1 font-bold">
+          <div className="text-accent text-3xl mb-1 font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             利维坦的诞生
           </div>
-          <div className="text-terminal-dim text-sm mb-6">
-            The Birth of Leviathan
+          <div className="text-fg/60 text-sm mb-6">
+            黑色幽默政治模拟器
           </div>
         </motion.div>
 
         {showIntro && (
           <motion.div
-            className="text-terminal-dim text-xs mb-8 leading-relaxed max-w-sm mx-auto"
+            className="text-fg/70 text-xs mb-8 leading-relaxed max-w-sm mx-auto"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
@@ -69,31 +74,31 @@ export function MainMenu({ onStart }: MainMenuProps) {
           transition={{ delay: 1.5 }}
         >
           <button
-            className="w-full border border-terminal-green text-terminal-green py-2 px-4 hover:bg-terminal-green/10 glow-green text-sm"
+            className="btn-primary w-full text-sm py-3"
             onClick={handleNewGame}
           >
-            [ 新游戏 — 发明一个民族 ]
+            新游戏 — 发明一个民族
           </button>
 
           {hasSave && (
             <button
-              className="w-full border border-terminal-yellow text-terminal-yellow py-2 px-4 hover:bg-terminal-yellow/10 text-sm"
+              className="btn-secondary w-full text-sm py-3"
               onClick={handleContinue}
             >
-              [ 继续 — Day {day} ]
+              继续 — 第 {day} 天
             </button>
           )}
         </motion.div>
 
         <motion.div
-          className="mt-8 text-terminal-dim text-[10px]"
+          className="mt-8 text-fg/40 text-[10px]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2 }}
         >
           "任何叙事都能构建——历史、民族、国家皆可被发明"
           <br />
-          <span className="text-terminal-dim/50">v0.1.0 | Black Humor Political Simulator</span>
+          <span className="text-fg/25">v0.1.0 | 黑色幽默政治模拟器</span>
         </motion.div>
       </div>
     </div>

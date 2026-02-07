@@ -9,13 +9,13 @@ interface ProgressBarProps {
   hidden?: boolean;
 }
 
-const colorMap: Record<string, { bar: string; text: string; glow: string }> = {
-  blue: { bar: 'bg-terminal-blue', text: 'text-terminal-blue', glow: 'glow-blue' },
-  red: { bar: 'bg-terminal-red', text: 'text-terminal-red', glow: 'glow-red' },
-  yellow: { bar: 'bg-terminal-yellow', text: 'text-terminal-yellow', glow: 'glow-yellow' },
-  green: { bar: 'bg-terminal-green', text: 'text-terminal-green', glow: 'glow-green' },
-  cyan: { bar: 'bg-terminal-cyan', text: 'text-terminal-cyan', glow: '' },
-  magenta: { bar: 'bg-terminal-magenta', text: 'text-terminal-magenta', glow: '' },
+const colorMap: Record<string, { bar: string; text: string }> = {
+  blue: { bar: 'bg-blue', text: 'text-blue' },
+  red: { bar: 'bg-red', text: 'text-red' },
+  yellow: { bar: 'bg-gold', text: 'text-gold' },
+  green: { bar: 'bg-teal', text: 'text-teal' },
+  cyan: { bar: 'bg-teal', text: 'text-teal' },
+  magenta: { bar: 'bg-purple', text: 'text-purple' },
 };
 
 export function ProgressBar({
@@ -35,16 +35,19 @@ export function ProgressBar({
   return (
     <div className="mb-2">
       <div className="flex justify-between text-xs mb-0.5">
-        <span className={`${c.text} ${isLow ? 'animate-pulse' : ''}`}>{label}</span>
+        <span className={c.text}>{label}</span>
         {showValue && (
-          <span className="text-terminal-dim">
+          <span className="text-dim font-mono text-[11px]">
             {value}/{max}
           </span>
         )}
       </div>
-      <div className="h-2 bg-terminal-bg border border-terminal-dim">
+      <div className={`h-2 bg-surface rounded-full overflow-hidden ${isLow ? 'pulse-danger' : ''}`}>
         <motion.div
-          className={`h-full ${c.bar} ${isLow ? 'animate-pulse' : ''}`}
+          className={`h-full ${c.bar} rounded-full`}
+          style={{
+            backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 100%)',
+          }}
           initial={false}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}

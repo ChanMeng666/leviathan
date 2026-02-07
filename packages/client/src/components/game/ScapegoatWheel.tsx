@@ -55,7 +55,6 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
     setSelected(group);
 
     setTimeout(() => {
-      // Clear dissatisfaction by boosting narrative
       applyStatChanges({ narrative_integrity: 20, violence_authority: 10, cruelty: 15 });
       addTrait(`清洗了${group.name}`);
       addHistoryEntry(`[Day] 替罪羊轮盘: 清洗了${group.name}，不满归零。`);
@@ -67,8 +66,8 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
   return (
     <Modal open={open} onClose={spinning ? undefined : onClose} title="替罪羊轮盘" variant="danger">
       <div className="text-center mb-4">
-        <div className="text-terminal-red text-lg glow-red">不满值: {unsat}%</div>
-        <div className="text-xs text-terminal-dim mt-1">
+        <div className="text-red text-lg font-bold">不满值: {unsat}%</div>
+        <div className="text-xs text-dim mt-1">
           选择一个群体作为替罪羊。他们将永远消失，但民众的怒火会暂时平息。
         </div>
       </div>
@@ -79,11 +78,11 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         >
-          <div className="text-terminal-red text-2xl glow-red">
-            {'>>>'} 清洗中... {'<<<'}
+          <div className="text-red text-2xl font-bold">
+            清洗中...
           </div>
           {selected && (
-            <div className="text-terminal-yellow mt-2">{selected.name} 正在被"重新安置"</div>
+            <div className="text-gold mt-2">{selected.name} 正在被"重新安置"</div>
           )}
         </motion.div>
       ) : (
@@ -91,12 +90,12 @@ export function ScapegoatWheel({ open, onClose }: ScapegoatWheelProps) {
           {SCAPEGOAT_GROUPS.map((group) => (
             <button
               key={group.id}
-              className="w-full border border-terminal-red/30 hover:border-terminal-red p-3 text-left transition-colors"
+              className="w-full card-face border-2 border-red/20 hover:border-red p-3 text-left transition-colors rounded-[var(--radius-card)]"
               onClick={() => handleSacrifice(group)}
             >
-              <div className="text-sm text-terminal-red">{group.name}</div>
-              <div className="text-xs text-terminal-dim">{group.bonus_description}</div>
-              <div className="text-[10px] text-terminal-yellow mt-0.5">
+              <div className="text-sm text-red font-bold">{group.name}</div>
+              <div className="text-xs text-[#5A6A52]">{group.bonus_description}</div>
+              <div className="text-[10px] text-orange mt-0.5">
                 清洗后将永久失去此加成
               </div>
             </button>

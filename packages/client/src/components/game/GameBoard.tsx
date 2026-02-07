@@ -26,26 +26,26 @@ export function GameBoard() {
   if (gameOver) return <GameOverScreen />;
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col felt-bg">
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-terminal-dim px-4 py-2">
-        <div className="text-terminal-green glow-green text-sm">
-          {'>'} 利维坦的诞生 | Day {day}
+      <div className="flex items-center justify-between border-b border-border px-4 py-2 bg-surface/50">
+        <div className="text-accent text-sm font-bold">
+          利维坦的诞生 <span className="text-dim font-mono text-xs ml-2">第 {day} 天</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           {unsat > 50 && (
             <button
-              className="text-xs border border-terminal-red text-terminal-red px-2 py-0.5 hover:bg-terminal-red/10 animate-pulse"
+              className="btn-danger text-xs px-3 py-1"
               onClick={() => setShowScapegoat(true)}
             >
-              [替罪羊轮盘]
+              替罪羊轮盘
             </button>
           )}
           <button
-            className="text-xs border border-terminal-dim text-terminal-dim px-2 py-0.5 hover:text-terminal-fg"
+            className="btn-secondary text-xs px-3 py-1"
             onClick={() => setShowHistory(true)}
           >
-            [历史档案]
+            历史档案
           </button>
           <PhaseIndicator phase={phase} />
         </div>
@@ -59,7 +59,7 @@ export function GameBoard() {
         </div>
 
         {/* Center: Narrative Loom + Log */}
-        <div className="border-x border-terminal-dim flex flex-col p-3 gap-3 min-h-0">
+        <div className="border-x border-border flex flex-col p-3 gap-3 min-h-0">
           <NarrativeLoom />
           <NarrativeLog />
         </div>
@@ -71,8 +71,8 @@ export function GameBoard() {
       </div>
 
       {/* Bottom action bar */}
-      <div className="border-t border-terminal-dim px-4 py-2 flex justify-between items-center">
-        <div className="text-xs text-terminal-dim">
+      <div className="border-t border-border px-4 py-2 flex justify-between items-center bg-surface/50">
+        <div className="text-xs text-dim">
           {phase === 'draw' && '点击"下一天"抽取卡牌并进入行动阶段'}
           {phase === 'action' && '选择卡牌投入纺织机，或结束行动阶段'}
           {phase === 'settle' && '日结算完成，点击"下一天"继续'}
@@ -81,18 +81,18 @@ export function GameBoard() {
         <div className="flex gap-2">
           {phase === 'action' && (
             <button
-              className="text-xs border border-terminal-yellow text-terminal-yellow px-3 py-1 hover:bg-terminal-yellow/10"
+              className="btn-secondary text-xs px-4 py-1.5"
               onClick={endActionPhase}
             >
-              [结束行动]
+              结束行动
             </button>
           )}
           {(phase === 'draw' || phase === 'settle') && (
             <button
-              className="text-xs border border-terminal-green text-terminal-green px-3 py-1 hover:bg-terminal-green/10 glow-green"
+              className="btn-primary text-xs px-4 py-1.5"
               onClick={advanceDay}
             >
-              [下一天 &gt;]
+              下一天
             </button>
           )}
         </div>
@@ -111,23 +111,23 @@ export function GameBoard() {
 }
 
 function PhaseIndicator({ phase }: { phase: string }) {
-  const colors: Record<string, string> = {
-    draw: 'text-terminal-blue',
-    action: 'text-terminal-green',
-    event: 'text-terminal-red',
-    settle: 'text-terminal-yellow',
-    gameover: 'text-terminal-red',
+  const styles: Record<string, string> = {
+    draw: 'bg-blue/20 text-blue',
+    action: 'bg-teal/20 text-teal',
+    event: 'bg-red/20 text-red',
+    settle: 'bg-gold/20 text-gold',
+    gameover: 'bg-red/20 text-red',
   };
   const labels: Record<string, string> = {
-    draw: 'DRAW',
-    action: 'ACTION',
-    event: 'EVENT',
-    settle: 'SETTLE',
-    gameover: 'DEAD',
+    draw: '抽牌',
+    action: '行动',
+    event: '事件',
+    settle: '结算',
+    gameover: '死亡',
   };
   return (
-    <span className={`text-xs ${colors[phase] ?? 'text-terminal-dim'}`}>
-      [{labels[phase] ?? phase}]
+    <span className={`phase-chip ${styles[phase] ?? 'bg-surface text-dim'}`}>
+      {labels[phase] ?? phase}
     </span>
   );
 }

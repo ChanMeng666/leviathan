@@ -30,9 +30,9 @@ export function NarrativeLoom() {
   const canWeave = selectedCards.length >= 1 && phase === 'action' && !isWeaving;
 
   return (
-    <div className="border border-terminal-green p-3">
-      <div className="text-terminal-green glow-green text-center text-sm mb-3 border-b border-terminal-green pb-1">
-        {'>>>'} 叙事纺织机 {'<<<'}
+    <div className="panel p-3">
+      <div className="text-accent text-center text-sm mb-3 border-b border-border pb-1 font-bold">
+        叙事纺织机
       </div>
 
       {/* Card slots */}
@@ -50,19 +50,19 @@ export function NarrativeLoom() {
       {/* Combo indicator */}
       {combo && (
         <motion.div
-          className="text-terminal-yellow glow-yellow text-center text-xs mb-2 border border-terminal-yellow p-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          className="text-gold text-center text-xs mb-2 bg-gold/10 border border-gold/30 rounded-[var(--radius-sm)] p-1.5 font-bold"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
         >
-          {'!!!'} 合成配方匹配: {combo.name} {'!!!'}
+          合成配方匹配: {combo.name}
         </motion.div>
       )}
 
       {/* Intent selector */}
       <div className="mb-3">
-        <div className="text-xs text-terminal-dim mb-1">叙事意图:</div>
+        <div className="text-xs text-dim mb-1">叙事意图:</div>
         <select
-          className="w-full bg-terminal-bg border border-terminal-dim text-terminal-fg text-xs p-1 focus:border-terminal-green outline-none"
+          className="w-full bg-surface border border-border text-fg text-xs p-2 rounded-[var(--radius-sm)] focus:border-accent outline-none transition-colors"
           value={intent}
           onChange={(e) => setIntent(e.target.value)}
         >
@@ -76,19 +76,19 @@ export function NarrativeLoom() {
 
       {/* Weave button */}
       <button
-        className={`w-full border p-2 text-sm transition-colors ${
+        className={`w-full text-sm rounded-[var(--radius-sm)] p-2 transition-all ${
           canWeave
-            ? 'border-terminal-green text-terminal-green hover:bg-terminal-green/10 glow-green'
-            : 'border-terminal-dim text-terminal-dim cursor-not-allowed'
+            ? 'btn-primary'
+            : 'bg-surface text-dim cursor-not-allowed border border-border'
         }`}
         disabled={!canWeave}
         onClick={() => weave(intent)}
       >
-        {isWeaving ? '>>> 纺织中... <<<' : '[ 启动纺织机 ]'}
+        {isWeaving ? '纺织中...' : '启动纺织机'}
       </button>
 
       {selectedCards.length === 0 && phase === 'action' && (
-        <div className="text-terminal-dim text-xs text-center mt-2">
+        <div className="text-dim text-xs text-center mt-2">
           从左侧背包选择1-3张卡牌投入纺织机
         </div>
       )}

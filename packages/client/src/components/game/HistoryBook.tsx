@@ -13,13 +13,14 @@ export function HistoryBook({ open, onClose }: HistoryBookProps) {
     <Modal open={open} onClose={onClose} title="历史档案" variant="default">
       <div className="max-h-80 overflow-y-auto space-y-2">
         {nation.history_log.length === 0 ? (
-          <div className="text-terminal-dim text-xs text-center py-4">
-            [档案空白——历史尚未开始]
+          <div className="text-dim text-xs text-center py-4">
+            档案空白——历史尚未开始
           </div>
         ) : (
           nation.history_log.map((entry, i) => (
-            <div key={i} className="text-xs text-terminal-fg border-l border-terminal-dim pl-2">
-              {entry}
+            <div key={i} className="text-xs text-fg border-l-2 border-accent/40 pl-2 flex gap-2">
+              <span className="text-gold shrink-0">&#9670;</span>
+              <span>{entry}</span>
             </div>
           ))
         )}
