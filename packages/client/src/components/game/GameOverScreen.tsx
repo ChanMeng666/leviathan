@@ -180,12 +180,21 @@ export function GameOverScreen() {
 
       <div className="relative z-10 max-w-2xl w-full text-center">
         <motion.div
-          className="text-red text-3xl mb-4 font-bold"
-          style={{ fontFamily: 'var(--font-display)' }}
+          className="flex flex-col items-center mb-4"
           initial={{ y: -20 }}
           animate={{ y: 0 }}
         >
-          游戏结束
+          <img
+            src="/leviathan-logo.svg"
+            alt=""
+            className="w-16 h-16 mb-3 opacity-60 grayscale"
+          />
+          <div
+            className="text-red text-3xl font-bold"
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            游戏结束
+          </div>
         </motion.div>
 
         <div className="text-red text-xl mb-2">{deathInfo.title}</div>

@@ -118,6 +118,11 @@ export function WelcomePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
         >
+          <img
+            src="/leviathan-logo.svg"
+            alt="利维坦的诞生"
+            className="w-24 h-24 mx-auto mb-3 drop-shadow-lg"
+          />
           <div className="text-accent text-3xl mb-1 font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             利维坦的诞生
           </div>
@@ -329,6 +334,11 @@ export function WelcomePage() {
           >
             <BalatroBackground className="z-0" />
             <div className="relative z-10 text-center">
+              <img
+                src="/leviathan-logo.svg"
+                alt="利维坦的诞生"
+                className="w-32 h-32 mx-auto mb-4 drop-shadow-lg"
+              />
               <div
                 className="text-accent text-4xl font-bold mb-4"
                 style={{ fontFamily: 'var(--font-display)' }}

@@ -33,12 +33,15 @@ export function GalleryPage() {
           >
             ← 返回
           </button>
-          <h1
-            className="text-accent text-xl font-bold"
-            style={{ fontFamily: 'var(--font-display)' }}
-          >
-            结局画廊
-          </h1>
+          <div className="flex items-center gap-2">
+            <img src="/leviathan-logo.svg" alt="" className="w-7 h-7" />
+            <h1
+              className="text-accent text-xl font-bold"
+              style={{ fontFamily: 'var(--font-display)' }}
+            >
+              结局画廊
+            </h1>
+          </div>
           <AudioSettingsButton direction="down" />
         </motion.div>
 

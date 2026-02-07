@@ -62,7 +62,8 @@ export function GameBoard() {
           >
             &larr; 菜单
           </button>
-          <div className="text-accent text-sm font-bold">
+          <div className="flex items-center gap-2 text-accent text-sm font-bold">
+            <img src="/leviathan-logo.svg" alt="" className="w-6 h-6" />
             利维坦的诞生 <span className="text-dim font-mono text-xs ml-2">第 {day} 天</span>
           </div>
         </div>
