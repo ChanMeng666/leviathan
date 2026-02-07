@@ -34,6 +34,13 @@ export const gameRuns = pgTable('game_runs', {
   governmentType: text('government_type').notNull(),
   finalPopulation: integer('final_population').notNull(),
   epitaph: text('epitaph'),
+  traits: jsonb('traits'),
+  mythology: jsonb('mythology'),
+  scapegoats: jsonb('scapegoats'),
+  finalStats: jsonb('final_stats'),
+  historyBookTitle: text('history_book_title'),
+  historyBookBody: text('history_book_body'),
+  historyLog: jsonb('history_log'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => [
   index('game_runs_user_id_idx').on(table.userId),

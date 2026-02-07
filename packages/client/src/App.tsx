@@ -3,6 +3,7 @@ import { useAuth } from './hooks/useAuth';
 import { useBackgroundMusic } from './hooks/useAudio';
 import { WelcomePage } from './pages/WelcomePage';
 import { GameScreen } from './pages/GameScreen';
+import { GalleryPage } from './pages/GalleryPage';
 import { BalatroBackground } from './components/ui/BalatroBackground';
 
 export default function App() {
@@ -21,6 +22,10 @@ export default function App() {
 
   if (screen === 'game') {
     return <GameScreen />;
+  }
+
+  if (screen === 'gallery') {
+    return <GalleryPage />;
   }
 
   return <WelcomePage />;

@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import type { GameOverReason, HistoryBookResult } from '@leviathan/shared';
+import type { GameOverReason, HistoryBookResult, GameRunRecord } from '@leviathan/shared';
 import { GOVERNMENT_LABELS } from '@leviathan/shared';
 import { useGameStore } from '../../stores';
+import { apiFetch } from '../../lib/api';
 import { TypewriterText } from '../ui/TypewriterText';
 import { BalatroBackground } from '../ui/BalatroBackground';
 import { useSfx } from '../../hooks/useAudio';
@@ -42,6 +43,8 @@ export function GameOverScreen() {
   const gameOverReason = useGameStore((s) => s.gameOverReason);
   const nation = useGameStore((s) => s.nation);
   const day = useGameStore((s) => s.day);
+  const scapegoats = useGameStore((s) => s.scapegoats);
+  const user = useGameStore((s) => s.user);
   const resetNation = useGameStore((s) => s.resetNation);
   const resetCards = useGameStore((s) => s.resetCards);
   const resetEvents = useGameStore((s) => s.resetEvents);
@@ -51,6 +54,7 @@ export function GameOverScreen() {
   const [historyBook, setHistoryBook] = useState<HistoryBookResult | null>(null);
   const [loading, setLoading] = useState(false);
   const { play: sfx } = useSfx();
+  const recorded = useRef(false);
 
   const reason = gameOverReason ?? 'riot';
   const deathInfo = DEATH_MESSAGES[reason];
@@ -68,6 +72,59 @@ export function GameOverScreen() {
 
   useEffect(() => {
     if (!gameOverReason || nation.history_log.length === 0) return;
+
+    const recordRun = (hb: HistoryBookResult | null) => {
+      if (recorded.current) return;
+      recorded.current = true;
+
+      const payload: Omit<GameRunRecord, 'id' | 'createdAt'> = {
+        nationName: nation.name,
+        daysSurvived: day,
+        deathReason: reason,
+        governmentType: nation.government_type,
+        finalPopulation: nation.population,
+        epitaph: hb?.epitaph ?? null,
+        traits: nation.traits.length > 0 ? nation.traits : null,
+        mythology: nation.mythology.length > 0
+          ? nation.mythology.map((m) => ({ name: m.name, description: m.description }))
+          : null,
+        scapegoats: scapegoats.length > 0
+          ? scapegoats.map((s) => ({ id: s.id, name: s.name, sacrificed: s.sacrificed }))
+          : null,
+        finalStats: {
+          narrative_integrity: nation.narrative_integrity,
+          violence_authority: nation.violence_authority,
+          supply_level: nation.supply_level,
+          sanity: nation.sanity,
+          cruelty: nation.cruelty,
+          corruption: nation.corruption,
+        },
+        historyBookTitle: hb?.title ?? null,
+        historyBookBody: hb?.body ?? null,
+        historyLog: nation.history_log.length > 0 ? nation.history_log : null,
+      };
+
+      if (user) {
+        apiFetch('/api/saves/record-run', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        }).catch(() => {});
+      } else {
+        // Guest mode: save to localStorage
+        try {
+          const key = 'leviathan-gallery';
+          const existing: GameRunRecord[] = JSON.parse(localStorage.getItem(key) || '[]');
+          const record: GameRunRecord = {
+            ...payload,
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+          };
+          existing.unshift(record);
+          localStorage.setItem(key, JSON.stringify(existing.slice(0, 20)));
+        } catch { /* ignore */ }
+      }
+    };
+
     setLoading(true);
     fetch('/api/history-book', {
       method: 'POST',
@@ -87,8 +144,13 @@ export function GameOverScreen() {
       }),
     })
       .then((r) => r.json())
-      .then((data: HistoryBookResult) => setHistoryBook(data))
-      .catch(() => {})
+      .then((data: HistoryBookResult) => {
+        setHistoryBook(data);
+        recordRun(data);
+      })
+      .catch(() => {
+        recordRun(null);
+      })
       .finally(() => setLoading(false));
   }, [gameOverReason]);
 

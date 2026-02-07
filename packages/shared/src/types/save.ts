@@ -54,5 +54,19 @@ export interface GameRunRecord {
   governmentType: string;
   finalPopulation: number;
   epitaph: string | null;
+  traits: string[] | null;
+  mythology: { name: string; description: string }[] | null;
+  scapegoats: { id: string; name: string; sacrificed: boolean }[] | null;
+  finalStats: {
+    narrative_integrity: number;
+    violence_authority: number;
+    supply_level: number;
+    sanity: number;
+    cruelty: number;
+    corruption: number;
+  } | null;
+  historyBookTitle: string | null;
+  historyBookBody: string | null;
+  historyLog: string[] | null;
   createdAt: string;
 }

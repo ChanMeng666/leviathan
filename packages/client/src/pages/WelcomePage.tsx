@@ -157,6 +157,13 @@ export function WelcomePage() {
               继续 — 第 {day} 天
             </button>
           )}
+
+          <button
+            className="btn-secondary w-full text-sm py-3"
+            onClick={() => { sfx('btn-click'); setScreen('gallery'); }}
+          >
+            结局画廊
+          </button>
         </motion.div>
 
         {/* Cloud saves section (logged in only) */}

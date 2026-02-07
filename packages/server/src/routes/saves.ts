@@ -201,7 +201,10 @@ router.post('/saves/record-run', async (req, res) => {
     return;
   }
   try {
-    const { nationName, daysSurvived, deathReason, governmentType, finalPopulation, epitaph } = req.body;
+    const {
+      nationName, daysSurvived, deathReason, governmentType, finalPopulation, epitaph,
+      traits, mythology, scapegoats, finalStats, historyBookTitle, historyBookBody, historyLog,
+    } = req.body;
 
     const db = getDb();
     const [run] = await db
@@ -214,6 +217,13 @@ router.post('/saves/record-run', async (req, res) => {
         governmentType,
         finalPopulation,
         epitaph: epitaph ?? null,
+        traits: traits ?? null,
+        mythology: mythology ?? null,
+        scapegoats: scapegoats ?? null,
+        finalStats: finalStats ?? null,
+        historyBookTitle: historyBookTitle ?? null,
+        historyBookBody: historyBookBody ?? null,
+        historyLog: historyLog ?? null,
       } as typeof gameRuns.$inferInsert)
       .returning({ id: gameRuns.id });
 

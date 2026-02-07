@@ -1,7 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { GamePhase, GameOverReason } from '@leviathan/shared';
 
-export type Screen = 'welcome' | 'game';
+export type Screen = 'welcome' | 'game' | 'gallery';
 
 export interface GameSlice {
   day: number;
