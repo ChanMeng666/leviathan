@@ -10,7 +10,7 @@ interface OtpInputProps {
 export function OtpInput({ value, onChange, length = 6, disabled = false }: OtpInputProps) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
-  const digits = value.padEnd(length, '').slice(0, length).split('');
+  const digits = Array.from({ length }, (_, i) => value[i] ?? '');
 
   const focusInput = useCallback((index: number) => {
     inputsRef.current[index]?.focus();
@@ -20,7 +20,7 @@ export function OtpInput({ value, onChange, length = 6, disabled = false }: OtpI
     if (!/^\d?$/.test(char)) return;
     const next = [...digits];
     next[index] = char;
-    const newValue = next.join('').replace(/\s/g, '');
+    const newValue = next.join('');
     onChange(newValue);
     if (char && index < length - 1) {
       focusInput(index + 1);
@@ -63,7 +63,7 @@ export function OtpInput({ value, onChange, length = 6, disabled = false }: OtpI
           type="text"
           inputMode="numeric"
           maxLength={1}
-          value={digit === ' ' ? '' : digit}
+          value={digit}
           disabled={disabled}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
