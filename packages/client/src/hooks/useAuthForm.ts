@@ -80,6 +80,7 @@ export function useAuthForm(onSuccess: () => void): AuthFormState & AuthFormActi
     try {
       const result = await signIn(email, password);
       if (result.needsVerification) {
+        setOtp('');
         setView('verify-email');
         setResendCooldown(60);
       } else {
@@ -102,6 +103,7 @@ export function useAuthForm(onSuccess: () => void): AuthFormState & AuthFormActi
     setIsSubmitting(true);
     try {
       await signUp(email, password, name);
+      setOtp('');
       setView('verify-email');
       setResendCooldown(60);
     } catch (err) {
@@ -120,7 +122,7 @@ export function useAuthForm(onSuccess: () => void): AuthFormState & AuthFormActi
     }
     setIsSubmitting(true);
     try {
-      await verifyEmailOtp(email, otp);
+      await verifyEmailOtp(email, otp, password);
       onSuccess();
     } catch (err) {
       setError(err instanceof Error ? err.message : '验证失败');
@@ -152,6 +154,7 @@ export function useAuthForm(onSuccess: () => void): AuthFormState & AuthFormActi
     setIsSubmitting(true);
     try {
       await sendPasswordResetOtp(email);
+      setOtp('');
       setView('reset-password');
       setResendCooldown(60);
     } catch (err) {
