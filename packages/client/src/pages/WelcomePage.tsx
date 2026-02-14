@@ -114,7 +114,7 @@ export function WelcomePage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 1.5 }}
         >
-          {user ? (
+          {user?.emailVerified ? (
             <div className="space-y-3">
               <button
                 className="btn-primary w-full text-sm py-3"

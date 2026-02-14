@@ -37,8 +37,8 @@ export default function App() {
     );
   }
 
-  // Route guard: game and gallery require authentication
-  if (user) {
+  // Route guard: game and gallery require authentication + verified email
+  if (user && user.emailVerified) {
     if (screen === 'game') return <GameScreen />;
     if (screen === 'gallery') return <GalleryPage />;
   }

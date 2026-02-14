@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { authClient } from '../auth';
+import { authClient, emailOtp } from '../auth';
 import { useGameStore } from '../stores';
 
 export function useAuth() {
@@ -17,6 +17,7 @@ export function useAuth() {
           id: data.user.id,
           email: data.user.email,
           name: data.user.name ?? null,
+          emailVerified: !!data.user.emailVerified,
         });
       } else {
         clearAuth();
@@ -28,29 +29,31 @@ export function useAuth() {
     }
   }, [setUser, setIsAuthLoading, clearAuth]);
 
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string): Promise<{ needsVerification?: boolean; email?: string }> => {
     const { data, error } = await authClient.signIn.email({ email, password });
     if (error) throw new Error(error.message ?? '登录失败');
+    if (data?.user && !data.user.emailVerified) {
+      // Send a fresh verification OTP for unverified users
+      await emailOtp.sendVerificationOtp(email, 'email-verification');
+      return { needsVerification: true, email };
+    }
     if (data?.user) {
       setUser({
         id: data.user.id,
         email: data.user.email,
         name: data.user.name ?? null,
+        emailVerified: true,
       });
     }
+    return {};
   }, [setUser]);
 
-  const signUp = useCallback(async (email: string, password: string, name: string) => {
-    const { data, error } = await authClient.signUp.email({ email, password, name });
+  const signUp = useCallback(async (email: string, password: string, name: string): Promise<{ needsVerification: true; email: string }> => {
+    const { error } = await authClient.signUp.email({ email, password, name });
     if (error) throw new Error(error.message ?? '注册失败');
-    if (data?.user) {
-      setUser({
-        id: data.user.id,
-        email: data.user.email,
-        name: data.user.name ?? null,
-      });
-    }
-  }, [setUser]);
+    // Don't set user — Neon Auth auto-sends OTP on signup
+    return { needsVerification: true, email };
+  }, []);
 
   const signInWithGoogle = useCallback(async () => {
     await authClient.signIn.social({
@@ -64,6 +67,27 @@ export function useAuth() {
     clearAuth();
   }, [clearAuth]);
 
+  const verifyEmailOtp = useCallback(async (email: string, otp: string) => {
+    const { error } = await emailOtp.verifyEmail(email, otp);
+    if (error) throw new Error(error.message ?? '验证码错误');
+    await checkSession();
+  }, [checkSession]);
+
+  const resendVerificationOtp = useCallback(async (email: string) => {
+    const { error } = await emailOtp.sendVerificationOtp(email, 'email-verification');
+    if (error) throw new Error(error.message ?? '发送验证码失败');
+  }, []);
+
+  const sendPasswordResetOtp = useCallback(async (email: string) => {
+    const { error } = await emailOtp.forgetPassword(email);
+    if (error) throw new Error(error.message ?? '发送重置码失败');
+  }, []);
+
+  const resetPassword = useCallback(async (email: string, otp: string, password: string) => {
+    const { error } = await emailOtp.resetPassword(email, otp, password);
+    if (error) throw new Error(error.message ?? '重置密码失败');
+  }, []);
+
   return {
     user,
     isAuthLoading,
@@ -72,5 +96,9 @@ export function useAuth() {
     signUp,
     signInWithGoogle,
     signOut,
+    verifyEmailOtp,
+    resendVerificationOtp,
+    sendPasswordResetOtp,
+    resetPassword,
   };
 }
