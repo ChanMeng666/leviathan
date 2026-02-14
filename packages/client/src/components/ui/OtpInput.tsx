@@ -69,7 +69,7 @@ export function OtpInput({ value, onChange, length = 6, disabled = false }: OtpI
           onKeyDown={(e) => handleKeyDown(i, e)}
           onPaste={i === 0 ? handlePaste : undefined}
           onFocus={(e) => e.target.select()}
-          className="w-11 h-13 text-center text-xl font-mono bg-surface border border-border rounded-[var(--radius-sm)] text-accent focus:outline-none focus:border-accent disabled:opacity-50 transition-colors"
+          className="w-11 h-12 text-center text-xl font-mono bg-surface border border-border rounded-[var(--radius-sm)] text-accent focus:outline-none focus:border-accent disabled:opacity-50 transition-colors"
         />
       ))}
     </div>
